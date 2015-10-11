@@ -198,6 +198,8 @@ int main ( int argc, char *argv[] )
         }
     }
 
+    // print file name, so output from batch processes is useful:
+    printf("%s\n", szFile);
 
     // actually graph circle on screen with ASCII art chars and colours
     for (j=0; j<MAX_Y; j++) {
