@@ -19,7 +19,7 @@ A case of use can be found here: [http://wp.me/p2FmmK-96](http://wp.me/p2FmmK-96
    
 A random file looks like:
    
-![](https://circulosmeos.files.wordpress.com/2015/10/circle-random-bin.png)
+![](https://circulosmeos.files.wordpress.com/2015/10/circle-urandom.png)
     
 Options for non-colored consoles (in this case chars represent increments of 0.5 sigma and zero is char '*') and for using numbers instead of ASCII art are also available:   
    
