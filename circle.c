@@ -10,9 +10,6 @@
 
 #include "statistics_circle.h"
 
-#include <stdio.h>
-#include <complex.h>
-#include <math.h>
 
 const signed int CIRCLE_EMPTY_VALUE=255;
 
@@ -61,7 +58,7 @@ void create_circle(double complex *coordinates)
             x+= -(cosf(angle)) * r;
             y+= +(sinf(angle)) * r * proportion;
             if (x>MAX_X || y>MAX_Y || x<0 || y<0) {
-                printf ( "ERROR! %d, %d", x, y );
+                printf ( "ERROR! %.1f, %.1f", x, y );
                 break;
             }
             if ( circle[(int)x][(int)y] == CIRCLE_EMPTY_VALUE ) {

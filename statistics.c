@@ -10,10 +10,6 @@
 
 #include "statistics_circle.h"
 
-#include <stdio.h>
-#include <math.h>
-#include <stdbool.h>
-
 
 char sigma_char[MAX_SIGMA_CHAR+1] = { 
     '.', ',', '-', '~', '+', '*', 'o', 'O', '#', '@', 
@@ -117,7 +113,7 @@ int main ( int argc, char *argv[] )
     } while (bytes_read == buffer_length);
 
     // close file: it is not needed any more
-    close (hFile);
+    fclose (hFile);
 
 
     // .................................................

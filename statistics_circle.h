@@ -21,9 +21,13 @@
 
 
 #include <stdio.h>
+#include <stdint.h>
+#include <inttypes.h>
 #include <complex.h>
 #include <math.h>
 #include <stdbool.h>
+#include <string.h>
+#include <stdlib.h>
 
 #define PROGRAM_NAME "circle"
 
