@@ -198,9 +198,6 @@ int main ( int argc, char *argv[] )
         }
     }
 
-    // print file name, so output from batch processes is useful:
-    printf("\n%s\n", szFile);
-
     // actually graph circle on screen with ASCII art chars and colours
     for (j=0; j<MAX_Y; j++) {
         
@@ -234,16 +231,19 @@ int main ( int argc, char *argv[] )
     printf("sigma= \t%.2f  ", sigma );
 
     if (mean>0.0) {
-        printf("( CV= %.1f%%  )\n", (sigma/mean*100) );
+        printf("( CV= %.3f%% )\n", (sigma/mean*100.0) );
     } else {
         printf("\n");
     }
+
+    // print file name, so output from batch processes is useful:
+    printf("file =\t%s\n", szFile);
 
     readable_size = total_size;
     for (i=0; readable_size>1024; i++)
         readable_size/=1024.0;
 
-    printf("\nsize =\t%.1f %s,  (%lld bytes)\n", readable_size, SIZE_UNITS[i], total_size);
+    printf("size =\t%.1f %s,  (%lld bytes)\n", readable_size, SIZE_UNITS[i], total_size);
 
     return 0;
 
