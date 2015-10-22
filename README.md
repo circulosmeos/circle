@@ -3,7 +3,10 @@
 **circle** reads all bytes in a file, and counts and arranges them from 0x00 to 0xff. Them it calculates the Standard deviation (sigma) of the data, and arranges the 256 resulting buckets in a circle, in such a way that the distance from the centre is proportional to the byte value (with 0x00 at the center, and ...0xf0-0xff bytes the farthest from it). The char that represents each byte is proportional to the deviation from the mean, in fractions of the standard deviation.   
    
 Compilation:
+
     $ gcc [-lm](http://stackoverflow.com/questions/5005363/undefined-reference-to-sin) statistics.c circle.c -o circle
+    # or simply
+    $ make
 
 There're [executable files for various OS available here](https://drive.google.com/folderview?id=0B1L_hFrWJfRhODE3RE5fNGNaWWM).
 
