@@ -4,9 +4,10 @@
    
 Compilation:
 
-    $ gcc [-lm](http://stackoverflow.com/questions/5005363/undefined-reference-to-sin) statistics.c circle.c -o circle
-    # or simply
-    $ make
+$ gcc [-lm](http://stackoverflow.com/questions/5005363/undefined-reference-to-sin) statistics.c circle.c -o circle   
+or simply   
+
+    $ make   
 
 There're [executable files for various OS available here](https://drive.google.com/folderview?id=0B1L_hFrWJfRhODE3RE5fNGNaWWM).
 
