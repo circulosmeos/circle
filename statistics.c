@@ -60,7 +60,7 @@ int main ( int argc, char *argv[] )
 
 
     if (argc < 2) {
-        printf ("\n  circle v1.0 (goo.gl/TNh5dq)\n");
+        printf ("\n  circle v1.1 (goo.gl/TNh5dq)\n");
         printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n");
         printf ("  Use:\n  $ %s <filename> [0|1=no color,2=numbers,3=uncoloured numbers] [0-255=two circles!]\n\n", 
             PROGRAM_NAME);
@@ -211,7 +211,8 @@ int main ( int argc, char *argv[] )
     }
 
     // reset colour use in terminal screen
-    printf("%s%s", RESET, KWHT);
+    if (color_flag)
+        printf("%s%s", RESET, KWHT);
 
     if (two_circles_flag) {
         printf("\t    0 centered\t\t\t\t%d centered\n\n", two_circles_value);
@@ -223,11 +224,11 @@ int main ( int argc, char *argv[] )
 
     // print various statistics:
 
-    printf("mean =\t%.2f\n", mean);
-    printf("sigma= \t%.2f  ", sigma );
+    printf("mean =\t%.3f\n", mean);
+    printf("sigma= \t%.3f  ", sigma );
 
     if (mean>0.0) {
-        printf("( CV= %.3f%% )\n", (sigma/mean*100.0) );
+        printf("( CV= %.4f%% )\n", (sigma/mean*100.0) );
     } else {
         printf("\n");
     }
@@ -239,7 +240,7 @@ int main ( int argc, char *argv[] )
     for (i=0; readable_size>1024; i++)
         readable_size/=1024.0;
 
-    printf("size =\t%.1f %s,  (%lld bytes)\n", readable_size, SIZE_UNITS[i], total_size);
+    printf("size =\t%.2f %s,  (%lld bytes)\n", readable_size, SIZE_UNITS[i], total_size);
 
     return 0;
 
