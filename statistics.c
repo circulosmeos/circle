@@ -2,6 +2,7 @@
 // and graph them on an ASCII circle
 //
 // v1.0 by circulosmeos, 2015-10.
+// v1.2 by circulosmeos, 2016-01.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -29,29 +30,29 @@ int main ( int argc, char *argv[] )
     long long bytes[256];
 
     char *SIZE_UNITS[6] = { "bytes", "kiB", "MiB", "GiB", "TiB", "PiB"};
-    float readable_size=0.0;
+    double readable_size=0.0;
 
-    const int buffer_length = BUFFER_LENGTH;
+    const unsigned int buffer_length = BUFFER_LENGTH;
     char buffer[BUFFER_LENGTH];
-    //int i;
+    size_t k;
     size_t bytes_read;
     
     char *szFile;
     FILE *hFile;
 
     // sigma
-    float mean;
-    float sigma;
-    float deviation;
+    double mean;
+    double sigma;
+    double deviation;
 
-    int two_circles_value;
+    int two_circles_value=0;
 
     // for circle generation:
     //int MAX_X=50, MAX_Y=16;
     double complex coordinates[MAX_VALUE+1];
     signed int circle[MAX_X][MAX_Y];
     signed int circle2[MAX_X][MAX_Y];
-    int i, j, k;
+    int i, j;
 
 
     // .................................................
@@ -60,7 +61,7 @@ int main ( int argc, char *argv[] )
 
 
     if (argc < 2) {
-        printf ("\n  circle v1.1 (goo.gl/TNh5dq)\n");
+        printf ("\n  circle v1.2 (goo.gl/TNh5dq)\n");
         printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n");
         printf ("  Use:\n  $ %s <filename> [0|1=no color,2=numbers,3=uncoloured numbers] [0-255=two circles!]\n\n", 
             PROGRAM_NAME);
@@ -107,8 +108,8 @@ int main ( int argc, char *argv[] )
     // actually count different bytes in file
     do {
         bytes_read = fread(buffer, 1, buffer_length, hFile);
-        for (i = 0; i < bytes_read; ++i)
-            ++bytes[(unsigned char)buffer[i]];
+        for (k = 0; k < bytes_read; ++k)
+            ++bytes[(unsigned char)buffer[k]];
         total_size += bytes_read;
     } while (bytes_read == buffer_length);
 
@@ -131,12 +132,12 @@ int main ( int argc, char *argv[] )
     }
     mean /= (MAX_VALUE+1);
     */
-    mean = (float)total_size / (float)(MAX_VALUE+1);
+    mean = (double)total_size / (double)(MAX_VALUE+1);
     // 2. sigma value:
     for (i=0; i<=MAX_VALUE; i++) {
-        sigma += powf( (float)bytes[i] - mean, 2.0);
+        sigma += pow( (double)bytes[i] - mean, 2.0);
     }
-    sigma = sqrtf( sigma/(float)(MAX_VALUE+1) );
+    sigma = sqrt( sigma/(double)(MAX_VALUE+1) );
 
 
     // .................................................
@@ -162,13 +163,13 @@ int main ( int argc, char *argv[] )
         if (bytes[i] != 0) { //value has been seen in file
         
             // assign character size from sigma deviation
-            deviation = ((float)(bytes[i]) - mean) / sigma * 4.0;
+            deviation = ((double)(bytes[i]) - mean) / sigma * 4.0;
 
-            if (fabsf(deviation) >= (float)(MAX_SIGMA_CHAR-1)) {
+            if (fabs(deviation) >= (double)(MAX_SIGMA_CHAR-1)) {
                 if (deviation>0.0)
-                    deviation=+(float)(MAX_SIGMA_CHAR-1);
+                    deviation=+(double)(MAX_SIGMA_CHAR-1);
                 else
-                    deviation=-(float)(MAX_SIGMA_CHAR-1);
+                    deviation=-(double)(MAX_SIGMA_CHAR-1);
             }
 
             circle[(int)creal(coordinates[i])]
@@ -237,7 +238,7 @@ int main ( int argc, char *argv[] )
     printf("file =\t%s\n", szFile);
 
     readable_size = total_size;
-    for (i=0; readable_size>1024; i++)
+    for (i=0; readable_size>1024.0; i++)
         readable_size/=1024.0;
 
     printf("size =\t%.2f %s,  (%lld bytes)\n", readable_size, SIZE_UNITS[i], total_size);

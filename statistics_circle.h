@@ -2,6 +2,7 @@
 // and graph them on an ASCII circle
 //
 // v1.0 by circulosmeos, 2015-10.
+// v1.2 by circulosmeos, 2016-01.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -21,8 +22,8 @@
 
 
 #include <stdio.h>
-#include <stdint.h>
-#include <inttypes.h>
+//#include <stdint.h> // incompatible with Solaris
+#include <inttypes.h> //   compatible with Solaris
 #include <complex.h>
 #include <math.h>
 #include <stdbool.h>

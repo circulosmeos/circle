@@ -2,6 +2,7 @@
 // and graph them on an ASCII circle
 //
 // v1.0 by circulosmeos, 2015-10.
+// v1.2 by circulosmeos, 2016-01.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -26,7 +27,7 @@ void create_circle(double complex *coordinates)
     signed int circle[MAX_X][MAX_Y];
     //double complex coordinates[MAX_VALUE+1];
     //signed int CIRCLE_EMPTY_VALUE=255;
-    float x ,y, r, inc_r, angle, inc_angle, proportion;
+    double x ,y, r, inc_r, angle, inc_angle, proportion;
     int i, j, k;
 
     angle=0.0;
@@ -55,8 +56,8 @@ void create_circle(double complex *coordinates)
             k++;
             angle+=inc_angle;
             r+= inc_r;
-            x+= -(cosf(angle)) * r;
-            y+= +(sinf(angle)) * r * proportion;
+            x+= -(cos(angle)) * r;
+            y+= +(sin(angle)) * r * proportion;
             if (x>MAX_X || y>MAX_Y || x<0 || y<0) {
                 printf ( "ERROR! %.1f, %.1f", x, y );
                 break;
