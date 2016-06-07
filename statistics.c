@@ -3,6 +3,7 @@
 //
 // v1.0 by circulosmeos, 2015-10.
 // v1.2 by circulosmeos, 2016-01.
+// v2.0 by circulosmeos, 2016-06.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -23,9 +24,101 @@ bool numbers_flag = false;
 
 bool two_circles_flag = false;
 
+int two_circles_value=0;
 
-int main ( int argc, char *argv[] )
-{
+
+int main ( int argc, char *argv[] ) {
+
+    int i, output;
+
+    /*if (argc < 2) {
+        print_help();
+        return 1;
+    }*/
+
+    int opt = 0;
+    while ((opt = getopt(argc, argv, "z:o:bnuh")) != -1)
+        switch(opt) {
+            // help
+            case 'h':
+                print_help();
+                return 1;
+            // two circles: specify which ascii value set at zero position
+            case 'z':
+                two_circles_flag=true;
+                if (strcmp(optarg,"0")==0) {
+                    two_circles_value=MAX_VALUE/2;
+                } else {
+                    if(!(two_circles_value = atoi(optarg))) {
+                        printf("-z Error: Incorrect value for second circle's center (0-255).\n");
+                        return 2;
+                    }
+                }        
+                break;
+            // compatibility with old options: [0|1=no color,2=numbers,3=uncoloured numbers]
+            case 'o':
+                if (strcmp(optarg,"0")==0)
+                    break;
+                if (strcmp(optarg,"1")==0)
+                    color_flag=false;
+                else 
+                    if (strcmp(optarg,"2")==0)
+                        numbers_flag=true;
+                    else 
+                        if (strcmp(optarg,"3")==0) {
+                            color_flag=false;
+                            numbers_flag=true;
+                        } else {
+                            printf("-o Error: Incorrect value for colours style: [0|1|2|3].\n");
+                            return 2;
+                        }
+                break;
+            // black&white circle (no colours)
+            case 'b':
+                color_flag=false;
+                break;
+            // numbers with colours instead of ascii art
+            case 'n':
+                numbers_flag=true;
+                break;
+            // uncoloured numbers
+            case 'u':
+                color_flag=false;
+                numbers_flag=true;
+                break;
+            case '?':
+                if (optopt == 'z') {
+                    printf("-z Error: Incorrect value for colours style: [0|1|2|3].\n");
+                    return 2;
+                }
+                if (optopt == 'o') {
+                    printf("-o Error: Incorrect value for colours style: [0|1|2|3].\n");
+                    return 2;
+                }
+                if (isprint (optopt))
+                    printf ("Unknown option `-%c'.\n", optopt);
+                else
+                    printf ("Unknown option character `\\x%x'.\n", optopt);
+                break;
+            default:
+                abort ();
+        }
+
+    if (optind == argc || argc == 1) {
+        // file input is stdin
+        analyze_file( "-" );
+    } else
+        for (i = optind; i < argc; i++) {
+            output = analyze_file( argv[i] );
+            if (output != 0)
+                return output;
+        }
+
+}
+
+
+int analyze_file(char *szFile) {
+
     long long total_size = 0;
     long long bytes[256];
 
@@ -37,15 +130,13 @@ int main ( int argc, char *argv[] )
     size_t k;
     size_t bytes_read;
     
-    char *szFile;
+    //char *szFile;
     FILE *hFile;
 
     // sigma
     double mean;
     double sigma;
     double deviation;
-
-    int two_circles_value=0;
 
     // for circle generation:
     //int MAX_X=50, MAX_Y=16;
@@ -60,41 +151,11 @@ int main ( int argc, char *argv[] )
     // .................................................
 
 
-    if (argc < 2) {
-        printf ("\n  circle v1.2 (goo.gl/TNh5dq)\n");
-        printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n");
-        printf ("  Use:\n  $ %s <filename> [0|1=no color,2=numbers,3=uncoloured numbers] [0-255=two circles!]\n\n", 
-            PROGRAM_NAME);
-        return 1;
-    }
-
-    szFile=(char *)argv[1];
-
-    if (argc >= 3) {
-        if (strcmp(argv[2],"1")==0)
-            color_flag=false;
-        if (strcmp(argv[2],"2")==0)
-            numbers_flag=true;
-        if (strcmp(argv[2],"3")==0) {
-            color_flag=false;
-            numbers_flag=true;
-        }
-    }
-
-    if (argc >= 4) {
-        two_circles_flag=true;
-        if (strcmp(argv[3],"0")==0) {
-            two_circles_value=MAX_VALUE/2;
-        } else {
-            if(!(two_circles_value = atoi(argv[3]))) {
-                printf("Error: Incorrect value for second circle's center (0-255).\n");
-                return 2;
-            }
-        }
-    }
-
-
-    hFile = fopen(szFile, "rb");
+    if (strcmp(szFile, "-")==0) {
+        freopen(NULL, "rb", stdin);
+        hFile = stdin;
+    } else
+        hFile = fopen(szFile, "rb");
 
     if ( hFile == NULL  ) {
         printf ("Could not open file '%s'\n", szFile);
@@ -225,6 +286,9 @@ int main ( int argc, char *argv[] )
 
     // print various statistics:
 
+    // print file name, so output from batch processes is useful:
+    printf("file =\t%s\n", szFile);
+
     printf("mean =\t%.3f\n", mean);
     printf("sigma= \t%.3f  ", sigma );
 
@@ -233,9 +297,6 @@ int main ( int argc, char *argv[] )
     } else {
         printf("\n");
     }
-
-    // print file name, so output from batch processes is useful:
-    printf("file =\t%s\n", szFile);
 
     readable_size = total_size;
     for (i=0; readable_size>1024.0; i++)
@@ -288,5 +349,16 @@ void print_circle_value(signed int value) {
     } else {
         printf( " " );
     }
+
+}
+
+
+void print_help() {
+
+    printf ("\n  circle v2.0 (goo.gl/TNh5dq)\n");
+    printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n\n");
+    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-bnuh] [-z {0-255}] [<filename>] [<filename>] ...\n\n", 
+        PROGRAM_NAME);
+    printf ("\t-o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n\t-b : no color\n\t-n : numbers\n\t-u : uncoloured numbers (-b -n)\n\t-h : prints this help\n\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n");
 
 }

@@ -3,6 +3,7 @@
 //
 // v1.0 by circulosmeos, 2015-10.
 // v1.2 by circulosmeos, 2016-01.
+// v2.0 by circulosmeos, 2016-06.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -29,6 +30,9 @@
 #include <stdbool.h>
 #include <string.h>
 #include <stdlib.h>
+#include <unistd.h> // getopt()
+#include <getopt.h> // getopt() compatible with -std=c99
+#include <ctype.h>  // isprint()
 
 #define PROGRAM_NAME "circle"
 
@@ -51,5 +55,9 @@ extern const int MAX_X, MAX_Y;
 extern const int MAX_VALUE;
 
 void print_circle_value(signed int value);
+
+int analyze_file(char *szFile);
+
+void print_help();
 
 #endif /* STATISTICS_CIRCLE_H_ */
