@@ -3,7 +3,7 @@
 //
 // v1.0 by circulosmeos, 2015-10.
 // v1.2 by circulosmeos, 2016-01.
-// v2.0 by circulosmeos, 2016-06.
+// v2.1 by circulosmeos, 2016-06.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -12,6 +12,8 @@
 
 #ifndef STATISTICS_CIRCLE_H_
 #define STATISTICS_CIRCLE_H_
+
+#define _XOPEN_SOURCE 600 // getopt() compilation compatible with Solaris 9
 
 // .................................................
 // large file support (LFS) (files with size >2^31 (2 GiB) in linux, and >4 GiB in Windows)
@@ -31,8 +33,21 @@
 #include <string.h>
 #include <stdlib.h>
 #include <unistd.h> // getopt()
-#include <getopt.h> // getopt() compatible with -std=c99
 #include <ctype.h>  // isprint()
+
+#ifndef __sun
+# include <getopt.h> // getopt() compatible with -std=c99
+#endif
+
+// sets binary mode for stdin in Windows
+#define STDIN 0
+#ifdef _WIN32
+# include <io.h>
+# include <fcntl.h>
+# define SET_BINARY_MODE(handle) setmode(handle, O_BINARY)
+#else
+# define SET_BINARY_MODE(handle) ((void)0)
+#endif
 
 #define PROGRAM_NAME "circle"
 

@@ -3,7 +3,7 @@
 //
 // v1.0 by circulosmeos, 2015-10.
 // v1.2 by circulosmeos, 2016-01.
-// v2.0 by circulosmeos, 2016-06.
+// v2.1 by circulosmeos, 2016-06.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -152,7 +152,7 @@ int analyze_file(char *szFile) {
 
 
     if (strcmp(szFile, "-")==0) {
-        freopen(NULL, "rb", stdin);
+        SET_BINARY_MODE(STDIN); // sets binary mode for stdin in Windows
         hFile = stdin;
     } else
         hFile = fopen(szFile, "rb");
@@ -355,7 +355,7 @@ void print_circle_value(signed int value) {
 
 void print_help() {
 
-    printf ("\n  circle v2.0 (goo.gl/TNh5dq)\n");
+    printf ("\n  circle v2.1 (goo.gl/TNh5dq)\n");
     printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n\n");
     printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-bnuh] [-z {0-255}] [<filename>] [<filename>] ...\n\n", 
         PROGRAM_NAME);
