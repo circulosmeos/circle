@@ -7,7 +7,7 @@
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
-// Distributed under GPL v3 License.
+// Distributed under GPL v3 or higher License.
 //
 
 #ifndef STATISTICS_CIRCLE_H_

@@ -35,4 +35,4 @@ Options for non-colored consoles (in this case chars represent increments of 0.5
     $ circle <filename> [0|1=no color,2=numbers,3=uncoloured numbers] [0-255=two circles!]   
    
 
-Licensed as [GPL v3](http://www.gnu.org/licenses/gpl-3.0.en.html).   
+Licensed as [GPL v3](http://www.gnu.org/licenses/gpl-3.0.en.html) or higher.   
