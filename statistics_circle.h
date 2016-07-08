@@ -3,7 +3,8 @@
 //
 // v1.0 by circulosmeos, 2015-10.
 // v1.2 by circulosmeos, 2016-01.
-// v2.2 by circulosmeos, 2016-06.
+// v2.1, v2.2 by circulosmeos, 2016-06.
+// v2.3 by circulosmeos, 2016-07.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -19,15 +20,17 @@
 
 // .................................................
 // large file support (LFS) (files with size >2^31 (2 GiB) in linux, and >4 GiB in Windows)
-#define _FILE_OFFSET_BITS 64	// stat, fseek
+#define _FILE_OFFSET_BITS 64    // stat, fseek
 #define _LARGEFILE_SOURCE
-#define _LARGEFILE64_SOURCE		// off64_t for fseek64
-#define ZERO_LL 0LL				// crafted specially to be used in FSEEK( , , SEEK_END);
+#define _LARGEFILE64_SOURCE     // off64_t for fseek64
+#define ZERO_LL 0LL             // crafted specially to be used in FSEEK( , , SEEK_END);
 // .................................................
+
 
 #include <stdio.h>
 //#include <stdint.h> // incompatible with Solaris
-#include <inttypes.h> //   compatible with Solaris
+#include <inttypes.h> // compatible with Solaris
+#include <errno.h>    // printf to stderr
 #include <complex.h>
 #include <math.h>
 #include <stdbool.h>
@@ -49,8 +52,6 @@
 #else
 # define SET_BINARY_MODE(handle) ((void)0)
 #endif
-
-#define PROGRAM_NAME "bytes-circle"
 
 #define BUFFER_LENGTH 4096
 
