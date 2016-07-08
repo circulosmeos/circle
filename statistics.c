@@ -3,7 +3,8 @@
 //
 // v1.0 by circulosmeos, 2015-10.
 // v1.2 by circulosmeos, 2016-01.
-// v2.1 by circulosmeos, 2016-06.
+// v2.1, v2.2 by circulosmeos, 2016-06.
+// v2.3 by circulosmeos, 2016-07.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -29,7 +30,8 @@ int two_circles_value=0;
 
 int main ( int argc, char *argv[] ) {
 
-    int i, output;
+    int i, output, global_ouput;
+    bool bBreakOnFirstError=false;
 
     /*if (argc < 2) {
         print_help();
@@ -37,7 +39,7 @@ int main ( int argc, char *argv[] ) {
     }*/
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "z:o:bnuh")) != -1)
+    while ((opt = getopt(argc, argv, "z:o:bnuBh")) != -1)
         switch(opt) {
             // help
             case 'h':
@@ -50,7 +52,7 @@ int main ( int argc, char *argv[] ) {
                     two_circles_value=MAX_VALUE/2;
                 } else {
                     if(!(two_circles_value = atoi(optarg))) {
-                        printf("-z Error: Incorrect value for second circle's center (0-255).\n");
+                        fprintf(stderr, "-z Error: Incorrect value for second circle's center (0-255).\n");
                         return 2;
                     }
                 }        
@@ -69,7 +71,7 @@ int main ( int argc, char *argv[] ) {
                             color_flag=false;
                             numbers_flag=true;
                         } else {
-                            printf("-o Error: Incorrect value for colours style: [0|1|2|3].\n");
+                            fprintf(stderr, "-o Error: Incorrect value for colours style: [0|1|2|3].\n");
                             return 2;
                         }
                 break;
@@ -86,33 +88,41 @@ int main ( int argc, char *argv[] ) {
                 color_flag=false;
                 numbers_flag=true;
                 break;
-            case '?':
-                if (optopt == 'z') {
-                    printf("-z Error: Incorrect value for colours style: [0|1|2|3].\n");
-                    return 2;
-                }
-                if (optopt == 'o') {
-                    printf("-o Error: Incorrect value for colours style: [0|1|2|3].\n");
-                    return 2;
-                }
-                if (isprint (optopt))
-                    printf ("Unknown option `-%c'.\n", optopt);
-                else
-                    printf ("Unknown option character `\\x%x'.\n", optopt);
+            case 'B':
+                bBreakOnFirstError=true;
                 break;
+            case '?':
+                if (isprint (optopt))
+                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+                else
+                    fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+                return 2;
             default:
                 abort ();
         }
 
+    global_ouput=0;
+
     if (optind == argc || argc == 1) {
         // file input is stdin
-        analyze_file( "-" );
-    } else
+        analyze_file( "" );
+    
+    } else {
+
         for (i = optind; i < argc; i++) {
             output = analyze_file( argv[i] );
-            if (output != 0)
-                return output;
+            if (output != 0) {
+                if (bBreakOnFirstError)
+                    return 1;
+                else
+                    global_ouput=output;                
+            }
         }
+
+    }
+
+    if (global_ouput!=0)
+        fprintf(stderr, "\nErrors were found.\n\n");
 
 }
 
@@ -151,14 +161,14 @@ int analyze_file(char *szFile) {
     // .................................................
 
 
-    if (strcmp(szFile, "-")==0) {
+    if (strlen(szFile)==0) {
         SET_BINARY_MODE(STDIN); // sets binary mode for stdin in Windows
         hFile = stdin;
     } else
         hFile = fopen(szFile, "rb");
 
     if ( hFile == NULL  ) {
-        printf ("Could not open file '%s'\n", szFile);
+        fprintf (stderr, "Could not open file '%s'\n", szFile);
         return 3;
     }
 
@@ -287,7 +297,10 @@ int analyze_file(char *szFile) {
     // print various statistics:
 
     // print file name, so output from batch processes is useful:
-    printf("file =\t%s\n", szFile);
+    if (strlen(szFile)==0)
+        printf("file =\tstdin\n");
+    else
+        printf("file =\t%s\n", szFile);
 
     printf("mean =\t%.3f\n", mean);
     printf("sigma= \t%.3f  ", sigma );
@@ -355,10 +368,17 @@ void print_circle_value(signed int value) {
 
 void print_help() {
 
-    printf ("\n  circle v2.1 (goo.gl/TNh5dq)\n");
+    printf ("\n  %s \n", PACKAGE_STRING);
     printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n\n");
-    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-bnuh] [-z {0-255}] [<filename>] [<filename>] ...\n\n", 
-        PROGRAM_NAME);
-    printf ("\t-o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n\t-b : no color\n\t-n : numbers\n\t-u : uncoloured numbers (-b -n)\n\t-h : prints this help\n\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n");
+    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-Bbnuh] [-z {0-255}] [<filename>] [<filename>] ...\n\n", 
+        PACKAGE_NAME);
+    printf ("\t-o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
+        "\t-B : stop processing files on first error encountered\n"
+        "\t-b : no color\n"
+        "\t-n : numbers\n"
+        "\t-u : uncoloured numbers (-b -n)\n"
+        "\t-h : prints this help\n"
+        "\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"
+        );
 
 }

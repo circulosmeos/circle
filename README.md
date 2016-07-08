@@ -27,12 +27,21 @@ A random file looks like:
     
 Options for non-colored consoles (in this case chars represent increments of 0.5 sigma and zero is char '*') and for using numbers instead of ASCII art are also available:   
    
-    $ circle   
+    $ circle -h   
    
     Show statistics about bytes contained in a file,   
     as a circle graph of deviations from sigma.   
+   
     Use:   
-    $ circle <filename> [0|1=no color,2=numbers,3=uncoloured numbers] [0-255=two circles!]   
+    $ circle [-o {0|1|2|3}] [-Bbnuh] [-z {0-255}] [<filename>] [<filename>] ...   
+      
+        -o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}   
+        -B : stop processing files on first error encountered   
+        -b : no color   
+        -n : numbers   
+        -u : uncoloured numbers (-b -n)   
+        -h : prints this help   
+        -z {0-255} : prints a 2nd circle centered on this byte (0==127 !)   
    
 
 Licensed as [GPL v3](http://www.gnu.org/licenses/gpl-3.0.en.html) or higher.   

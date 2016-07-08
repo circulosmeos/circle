@@ -3,6 +3,8 @@
 //
 // v1.0 by circulosmeos, 2015-10.
 // v1.2 by circulosmeos, 2016-01.
+// v2.1, v2.2 by circulosmeos, 2016-06.
+// v2.3 by circulosmeos, 2016-07.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -59,7 +61,7 @@ void create_circle(double complex *coordinates)
             x+= -(cos(angle)) * r;
             y+= +(sin(angle)) * r * proportion;
             if (x>MAX_X || y>MAX_Y || x<0 || y<0) {
-                printf ( "ERROR! %.1f, %.1f", x, y );
+                fprintf (stderr, "ERROR! %.1f, %.1f", x, y );
                 break;
             }
             if ( circle[(int)x][(int)y] == CIRCLE_EMPTY_VALUE ) {
