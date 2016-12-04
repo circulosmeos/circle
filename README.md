@@ -2,7 +2,7 @@
 
 **circle** reads all bytes in a file, and counts and arranges them from 0x00 to 0xff. Them it calculates the Standard deviation (sigma) of the data, and arranges the 256 resulting buckets in a circle, in such a way that the distance from the centre is proportional to the byte value (with 0x00 at the center, and ...0xf0-0xff bytes the farthest from it). The char that represents each byte is proportional to the deviation from the mean, in fractions of the standard deviation.   
    
-**circle** can be installed (as **bytes-circle**) in **Ubuntu** and **Debian** using official repositories. Until *testing* becomes *stable* distribution, follow [these instructions](http://serverfault.com/questions/550855/how-to-add-debian-testing-repository-to-apt-get) for adding the testing repositories to your linux, and then just install as usual: 
+**circle** can be installed (as **bytes-circle**) in latest **Ubuntu** and **Debian** using official repositories. Follow [these instructions](http://serverfault.com/questions/550855/how-to-add-debian-testing-repository-to-apt-get) for adding repositories to previous versions' linux distributions, and then just install as usual: 
 
     $ apt-get install bytes-circle
 
@@ -37,12 +37,14 @@ Options for non-colored consoles (in this case chars represent increments of 0.5
     as a circle graph of deviations from sigma.   
    
     Use:   
-    $ circle [-o {0|1|2|3}] [-Bbnuh] [-z {0-255}] [<filename>] [<filename>] ...   
+    $ circle [-o {0|1|2|3}] [-Bbnruh] [-z {0-255}] [<filename>] [<filename>] ...   
       
         -o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}   
         -B : stop processing files on first error encountered   
         -b : no color   
         -n : numbers   
+        -r : restrict statistics to the byte buckets that appear   
+             in the file, not to the 256 default value.   
         -u : uncoloured numbers (-b -n)   
         -h : prints this help   
         -z {0-255} : prints a 2nd circle centered on this byte (0==127 !)   

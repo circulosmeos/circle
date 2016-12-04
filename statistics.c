@@ -5,6 +5,7 @@
 // v1.2 by circulosmeos, 2016-01.
 // v2.1, v2.2 by circulosmeos, 2016-06.
 // v2.3 by circulosmeos, 2016-07.
+// v2.4 by circulosmeos, 2016-12.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -25,6 +26,8 @@ bool numbers_flag = false;
 
 bool two_circles_flag = false;
 
+bool restrict_statistics = false;
+
 int two_circles_value=0;
 
 
@@ -39,7 +42,7 @@ int main ( int argc, char *argv[] ) {
     }*/
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "z:o:bnuBh")) != -1)
+    while ((opt = getopt(argc, argv, "z:o:bnuBrh")) != -1)
         switch(opt) {
             // help
             case 'h':
@@ -82,6 +85,10 @@ int main ( int argc, char *argv[] ) {
             // numbers with colours instead of ascii art
             case 'n':
                 numbers_flag=true;
+                break;
+            // restrict statistics to just the byte buckets that appear in the file
+            case 'r':
+                restrict_statistics=true;
                 break;
             // uncoloured numbers
             case 'u':
@@ -130,7 +137,8 @@ int main ( int argc, char *argv[] ) {
 int analyze_file(char *szFile) {
 
     long long total_size = 0;
-    long long bytes[256];
+    long long bytes[MAX_VALUE+1];
+    int number_of_byte_buckets = 0;
 
     char *SIZE_UNITS[6] = { "bytes", "kiB", "MiB", "GiB", "TiB", "PiB"};
     double readable_size=0.0;
@@ -173,7 +181,7 @@ int analyze_file(char *szFile) {
     }
 
     // fill counter matrix with zeros
-    for (i=0; i<256; ++i)
+    for (i=0; i<(MAX_VALUE+1); ++i)
         bytes[i] = 0;
 
     // actually count different bytes in file
@@ -197,18 +205,28 @@ int analyze_file(char *szFile) {
     sigma = 0.0;
     mean  = 0.0;
     // 1. mean value:
-    /*
-    for (i=0; i<=MAX_VALUE; i++) {
-        mean += (float)bytes[i];
+    if ( restrict_statistics ) {
+        for (i=0; i<=MAX_VALUE; i++) {
+            mean += (double)bytes[i];
+            if (bytes[i]>0LL) number_of_byte_buckets++;
+        }
+        mean /= (double)number_of_byte_buckets;
+    } else {
+        mean = (double)total_size / (double)(MAX_VALUE+1);
     }
-    mean /= (MAX_VALUE+1);
-    */
-    mean = (double)total_size / (double)(MAX_VALUE+1);
     // 2. sigma value:
-    for (i=0; i<=MAX_VALUE; i++) {
-        sigma += pow( (double)bytes[i] - mean, 2.0);
+    if ( restrict_statistics ) {
+        for (i=0; i<=MAX_VALUE; i++) {
+            if (bytes[i]>0) sigma += pow( (double)bytes[i] - mean, 2.0);
+        }
+        sigma = sqrt( sigma/(double)(number_of_byte_buckets) );
+    } else {
+        for (i=0; i<=MAX_VALUE; i++) {
+            sigma += pow( (double)bytes[i] - mean, 2.0);
+        }
+        sigma = sqrt( sigma/(double)(MAX_VALUE+1) );
     }
-    sigma = sqrt( sigma/(double)(MAX_VALUE+1) );
+    
 
 
     // .................................................
@@ -234,7 +252,10 @@ int analyze_file(char *szFile) {
         if (bytes[i] != 0) { //value has been seen in file
         
             // assign character size from sigma deviation
-            deviation = ((double)(bytes[i]) - mean) / sigma * 4.0;
+            if (sigma>0)
+                deviation = ((double)(bytes[i]) - mean) / sigma * 4.0;
+            else 
+                deviation = 0.0;
 
             if (fabs(deviation) >= (double)(MAX_SIGMA_CHAR-1)) {
                 if (deviation>0.0)
@@ -302,7 +323,11 @@ int analyze_file(char *szFile) {
     else
         printf("file =\t%s\n", szFile);
 
-    printf("mean =\t%.3f\n", mean);
+    if ( !restrict_statistics || number_of_byte_buckets == (MAX_VALUE+1) ) {
+        printf("mean =\t%.3f\n", mean);
+    } else {
+        printf("mean =\t%.3f (%d/%d byte buckets)\n", mean, number_of_byte_buckets, (MAX_VALUE+1));
+    }
     printf("sigma= \t%.3f  ", sigma );
 
     if (mean>0.0) {
@@ -370,12 +395,13 @@ void print_help() {
 
     printf ("\n  %s \n", PACKAGE_STRING);
     printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n\n");
-    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-Bbnuh] [-z {0-255}] [<filename>] [<filename>] ...\n\n", 
+    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-Bbnruh] [-z {0-255}] [<filename>] [<filename>] ...\n\n", 
         PACKAGE_NAME);
     printf ("\t-o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
         "\t-B : stop processing files on first error encountered\n"
         "\t-b : no color\n"
         "\t-n : numbers\n"
+        "\t-r : restrict statistics to the byte buckets that appear \n\t     in the file, not to the 256 default value.\n"
         "\t-u : uncoloured numbers (-b -n)\n"
         "\t-h : prints this help\n"
         "\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"
