@@ -8,7 +8,8 @@
 
 Compilation:
 
-$ gcc [-lm](http://stackoverflow.com/questions/5005363/undefined-reference-to-sin) statistics.c circle.c -o circle   
+    $ gcc statistics.c circle.c -o circle [-lm](http://stackoverflow.com/questions/5005363/undefined-reference-to-sin)    
+
 or simply   
 
     $ make   

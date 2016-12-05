@@ -210,7 +210,8 @@ int analyze_file(char *szFile) {
             mean += (double)bytes[i];
             if (bytes[i]>0LL) number_of_byte_buckets++;
         }
-        mean /= (double)number_of_byte_buckets;
+        if (number_of_byte_buckets>0)
+            mean /= (double)number_of_byte_buckets;
     } else {
         mean = (double)total_size / (double)(MAX_VALUE+1);
     }
@@ -219,7 +220,8 @@ int analyze_file(char *szFile) {
         for (i=0; i<=MAX_VALUE; i++) {
             if (bytes[i]>0) sigma += pow( (double)bytes[i] - mean, 2.0);
         }
-        sigma = sqrt( sigma/(double)(number_of_byte_buckets) );
+        if (number_of_byte_buckets>0)
+            sigma = sqrt( sigma/(double)(number_of_byte_buckets) );
     } else {
         for (i=0; i<=MAX_VALUE; i++) {
             sigma += pow( (double)bytes[i] - mean, 2.0);
@@ -333,7 +335,7 @@ int analyze_file(char *szFile) {
     if (mean>0.0) {
         printf("( CV= %.4f%% )\n", (sigma/mean*100.0) );
     } else {
-        printf("\n");
+        printf("( CV= 0%% )\n");
     }
 
     readable_size = total_size;
