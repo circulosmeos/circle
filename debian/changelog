@@ -1,0 +1,19 @@
+bytes-circle (2.4-1) unstable; urgency=low
+
+  * New upstream release.
+
+ -- Roberto S. Galende <roberto.s.galende@gmail.com>  Mon, 05 Dec 2016 19:01:05 +0100
+
+bytes-circle (2.3-1) unstable; urgency=low
+
+  * Added use of stderr for error output.
+  * stdin treatment recoded.
+  * New command-line modifier -B
+
+ -- Roberto S. Galende <roberto.s.galende@gmail.com>  Fri, 08 Jul 2016 19:45:33 +0200
+
+bytes-circle (2.2-1) unstable; urgency=low
+
+  * Initial release (Closes: #827555)
+
+ -- Roberto S. Galende <roberto.s.galende@gmail.com>  Sun, 19 Jun 2016 11:45:16 +0200

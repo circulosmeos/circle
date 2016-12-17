@@ -1,0 +1,13 @@
+bytes-circle v2.4 
+
+bytes-circle is a program that shows statistics about bytes 
+contained in a file as an ASCII circle graph of deviations from 
+mean in sigma increments.
+
+The program can be useful for statistically analyze the content of
+files in a glimpse: text files are shown as a green centered crown,
+compressed and encrypted files should be shown as equally distributed
+variations with a very low CV (sigma/mean), and other types of files
+can be classified between these two categories depending on their
+ASCII vs binary content, which can be useful to quickly determine how
+information is stored inside them (redis db, mmedia files, etc).

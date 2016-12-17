@@ -1,0 +1,72 @@
+.\"                                      Hey, EMACS: -*- nroff -*-
+.\" (C) Copyright 2016 Roberto S. Galende <roberto.s.galende@gmail.com>,
+.\"
+.\" First parameter, NAME, should be all caps
+.\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
+.\" other parameters are allowed: see man(7), man(1)
+.TH BYTES-CIRCLE 1 "December 5, 2016"
+.\" Please adjust this date whenever revising the manpage.
+.\"
+.SH NAME
+bytes-circle \- Show byte statistics as an ASCII circle graph
+.SH SYNOPSIS
+.B bytes-circle
+.RI [-o\ {0|1|2|3}]\ [-Bbnruh]\ [-z\ {0-255}] " files" ...
+.br
+.SH DESCRIPTION
+\fBbytes-circle\fP is a program that shows statistics about bytes contained
+in a file as an ASCII circle graph of deviations from mean in sigma increments.
+
+By default, byte 0 is at the center of the circle and next bytes until 256
+are situated counterclockwise around the center.
+
+bytes-circle expects a colour terminal, though other options are available.
+
+The ASCII art produced uses this char array to represent increment
+values of 1/4*sigma from the statistic's mean:
+  \fB . , - ~ + * o O # @ \fP
+
+This ranges from zero (.) on the left, to 9/4*sigma (@) on the right.
+If value is zero or over the mean the char is printed green.
+If it is below the mean, it's printed red. A (blue) '=' char
+represents a byte value that doesn't appear in the file.
+.SH OPTIONS
+.TP
+.BR \fBfiles\fP
+One or more files. If no file is indicated, standard input is used.
+.TP
+.BR \-o\ {0 | 1 | 2 | 3}
+1=no color | 2=numbers | 3=uncoloured numbers
+.TP
+.BR \-B
+Stop processing files on first error encountered.
+.TP
+.BR \-b
+No color. In this case, ASCII art is adjusted so the zero sigma
+is at the middle of the chars array (char '*'). Increments are 1/2*sigma.
+.TP
+.BR \-n
+Use numbers. In this case, coloured numbers are used to represent
+values from 0 to 9/4*sigma.
+.TP
+.BR \-r
+Restrict statistics to the byte values that appear in the file, not to
+the 256 default. This only makes a difference if there are byte values
+that do not appear in the file.
+.TP
+.BR \-u
+Use uncoloured numbers. In this case, numbers are used to represent
+positive deviations from 0 to 9/4*sigma, and letters are used to
+represent negative deviations from 'a' (-0) to 'i' (-9/4)*sigma.
+.TP
+.BR \-h
+Show summary of options.
+.TP
+.BR \-z\ {0-255}
+Shows a second circle centered on indicated byte bucket. A zero value
+is equivalent to 127 for ease of use. This way a second view of the
+statistics is available for data disaggregation.
+.SH AUTHOR
+This program was written by Roberto S. Galende <roberto.s.galende@gmail.com>
+and is copyrighted under the GPL, version 3 or later.
+.br
