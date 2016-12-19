@@ -63,7 +63,7 @@
 #define KGRN  "\x1B[32m"
 #define KBLU  "\x1B[34m"
 #define KWHT  "\x1B[37m"
-#define RESET "\033[0m"
+#define RESET "\033[m"
 
 void create_circle(double complex *coordinates);
 
