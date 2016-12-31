@@ -53,7 +53,7 @@
 #endif
 
 #define PACKAGE_NAME    "circle"
-#define PACKAGE_STRING  "circle v2.4 (goo.gl/TNh5dq)"
+#define PACKAGE_STRING  "circle v2.5 (goo.gl/TNh5dq)"
 
 #define BUFFER_LENGTH 4096
 
@@ -63,7 +63,7 @@
 #define KGRN  "\x1B[32m"
 #define KBLU  "\x1B[34m"
 #define KWHT  "\x1B[37m"
-#define RESET "\033[m"
+#define RESET "\x1B[m"
 
 void create_circle(double complex *coordinates);
 

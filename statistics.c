@@ -346,6 +346,7 @@ int analyze_file(char *szFile) {
 
     if (color_flag)
         printf("%s", RESET);
+
     return 0;
 
 }
