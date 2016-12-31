@@ -344,6 +344,9 @@ int analyze_file(char *szFile) {
 
     printf("size =\t%.2f %s,  (%lld bytes)\n", readable_size, SIZE_UNITS[i], total_size);
 
+    if (color_flag)
+        printf("%s", RESET);
+
     return 0;
 
 }

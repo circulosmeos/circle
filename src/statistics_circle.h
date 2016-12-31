@@ -5,6 +5,7 @@
 // v1.2 by circulosmeos, 2016-01.
 // v2.1, v2.2 by circulosmeos, 2016-06.
 // v2.3 by circulosmeos, 2016-07.
+// v2.4 by circulosmeos, 2016-12.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -61,7 +62,7 @@
 #define KGRN  "\x1B[32m"
 #define KBLU  "\x1B[34m"
 #define KWHT  "\x1B[37m"
-#define RESET "\033[0m"
+#define RESET "\x1B[m"
 
 void create_circle(double complex *coordinates);
 
