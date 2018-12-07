@@ -5,7 +5,8 @@
 // v1.2 by circulosmeos, 2016-01.
 // v2.1, v2.2 by circulosmeos, 2016-06.
 // v2.3 by circulosmeos, 2016-07.
-// v2.4 by circulosmeos, 2016-12.
+// v2.4, v2.5 by circulosmeos, 2016-12.
+// v2.6 by circulosmeos, 2018-12.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -28,6 +29,8 @@ bool two_circles_flag = false;
 
 bool restrict_statistics = false;
 
+int list_bytes = 0;
+
 int two_circles_value=0;
 
 
@@ -42,11 +45,19 @@ int main ( int argc, char *argv[] ) {
     }*/
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "z:o:bnuBrh")) != -1)
+    while ((opt = getopt(argc, argv, "z:o:blLZnuBrvh")) != -1)
         switch(opt) {
             // help
             case 'h':
                 print_help();
+                return 1;
+            // version
+            case 'v':
+                printf ("\n  %s \n\n  ", PACKAGE_STRING);
+                for (i=0; i<MAX_SIGMA_CHAR; i++) {
+                    printf ("%c ", sigma_char[i] );
+                }
+                printf("  each represents 1/4*sigma\n\n");
                 return 1;
             // two circles: specify which ascii value set at zero position
             case 'z':
@@ -82,6 +93,18 @@ int main ( int argc, char *argv[] ) {
             case 'b':
                 color_flag=false;
                 break;
+            // list number of bytes
+            case 'l':
+                list_bytes=1;
+                break;
+            // list number of bytes, but not 0 valued
+            case 'L':
+                list_bytes=2;
+                break;
+            // list number of bytes, but only 0 valued
+            case 'Z':
+                list_bytes=3;
+                break;
             // numbers with colours instead of ascii art
             case 'n':
                 numbers_flag=true;
@@ -99,9 +122,10 @@ int main ( int argc, char *argv[] ) {
                 bBreakOnFirstError=true;
                 break;
             case '?':
-                if (isprint (optopt))
+                if (isprint (optopt)) {
                     fprintf(stderr, "Unknown option `-%c'.\n", optopt);
-                else
+                    print_help();
+                } else
                     fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
                 return 2;
             default:
@@ -307,7 +331,7 @@ int analyze_file(char *szFile) {
 
     // reset colour use in terminal screen
     if (color_flag)
-        printf("%s%s", RESET, KWHT);
+        printf("%s", RESET);
 
     if (two_circles_flag) {
         printf("\t    0 centered\t\t\t\t%d centered\n\n", two_circles_value);
@@ -342,10 +366,24 @@ int analyze_file(char *szFile) {
     for (i=0; readable_size>1024.0; i++)
         readable_size/=1024.0;
 
-    printf("size =\t%.2f %s,  (%lld bytes)\n", readable_size, SIZE_UNITS[i], total_size);
+    printf("size =\t%.2f %s,  (%lld bytes)\n\n", readable_size, SIZE_UNITS[i], total_size);
 
-    if (color_flag)
-        printf("%s", RESET);
+    // print counted values of each byte if list_bytes > 0
+    if ( list_bytes > 0 ) {
+        for (i=0; i<=MAX_VALUE; i++) {
+            if ( list_bytes == 1 || ( list_bytes == 2 && bytes[i] > 0LL ) ) {
+                if (color_flag && bytes[i] > 0LL)
+                    printf("%s", ((double)bytes[i] >= mean)?KGRN:KRED );
+                printf("[%d] = %lld\n", i, bytes[i] );
+                if (color_flag && bytes[i] > 0LL)
+                    printf("%s", RESET);
+            } else {
+                if ( list_bytes == 3 && bytes[i] == 0LL )
+                    printf("[%d] = %lld\n", i, bytes[i] );
+            }
+        }
+        printf("\n");
+    }
 
     return 0;
 
@@ -405,12 +443,15 @@ void print_help() {
     printf ("\t-o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
         "\t-B : stop processing files on first error encountered\n"
         "\t-b : no color\n"
+        "\t-l : list number of bytes counted, from 0 to 255\n"
+        "\t-L : list number of bytes counted, excluding zero valued\n"
+        "\t-Z : list number of bytes counted, but only zero valued\n"
         "\t-n : numbers\n"
         "\t-r : restrict statistics to the byte buckets that appear \n\t     in the file, not to the 256 default value.\n"
         "\t-u : uncoloured numbers (-b -n)\n"
+        "\t-v : prints version\n"
         "\t-h : prints this help\n"
         "\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"
         );
 
 }
-

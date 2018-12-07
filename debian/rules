@@ -8,5 +8,4 @@ DPKG_EXPORT_BUILDFLAGS = 1
 include /usr/share/dpkg/default.mk
 
 %:
-	dh $@  --with autotools-dev
-
+	dh $@

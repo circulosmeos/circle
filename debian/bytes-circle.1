@@ -1,17 +1,17 @@
 .\"                                      Hey, EMACS: -*- nroff -*-
-.\" (C) Copyright 2016 Roberto S. Galende <roberto.s.galende@gmail.com>,
+.\" (C) Copyright 2018 Roberto S. Galende <roberto.s.galende@gmail.com>,
 .\"
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH BYTES-CIRCLE 1 "December 5, 2016"
+.TH BYTES-CIRCLE 1 "December 6, 2018"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .SH NAME
 bytes-circle \- Show byte statistics as an ASCII circle graph
 .SH SYNOPSIS
 .B bytes-circle
-.RI [-o\ {0|1|2|3}]\ [-Bbnruh]\ [-z\ {0-255}] " files" ...
+.RI [-o\ {0|1|2|3}]\ [-BblLZnruvh]\ [-z\ {0-255}] " files" ...
 .br
 .SH DESCRIPTION
 \fBbytes-circle\fP is a program that shows statistics about bytes contained
@@ -45,6 +45,15 @@ Stop processing files on first error encountered.
 No color. In this case, ASCII art is adjusted so the zero sigma
 is at the middle of the chars array (char '*'). Increments are 1/2*sigma.
 .TP
+.BR \-l
+List number of bytes counted, from 0 to 255.
+.TP
+.BR \-L
+List number of bytes counted, excluding zero valued.
+.TP
+.BR \-Z
+List number of bytes counted, but only zero valued.
+.TP
 .BR \-n
 Use numbers. In this case, coloured numbers are used to represent
 values from 0 to 9/4*sigma.
@@ -59,11 +68,14 @@ Use uncoloured numbers. In this case, numbers are used to represent
 positive deviations from 0 to 9/4*sigma, and letters are used to
 represent negative deviations from 'a' (-0) to 'i' (-9/4)*sigma.
 .TP
+.BR \-v
+Show program version and list chars used in coloured circle.
+.TP
 .BR \-h
 Show summary of options.
 .TP
 .BR \-z\ {0-255}
-Shows a second circle centered on indicated byte bucket. A zero value
+Show a second circle centered on indicated byte bucket. A zero value
 is equivalent to 127 for ease of use. This way a second view of the
 statistics is available for data disaggregation.
 .SH AUTHOR

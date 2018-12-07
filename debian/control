@@ -2,16 +2,16 @@ Source: bytes-circle
 Section: math
 Priority: optional
 Maintainer: Roberto S. Galende <roberto.s.galende@gmail.com>
-Build-Depends: debhelper (>= 9), autotools-dev
-Standards-Version: 3.9.8
+Build-Depends: debhelper (>= 11)
+Standards-Version: 4.2.1
 Homepage: https://circulosmeos.wordpress.com/2015/10/10/statistics-circle-for-analysing-byte-entropy-in-files/
 
 Package: bytes-circle
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Show byte statistics as an ASCII circle graph
- bytes-circle is a program that shows statistics about bytes 
- contained in a file as an ASCII circle graph of deviations from 
+ bytes-circle is a program that shows statistics about bytes
+ contained in a file as an ASCII circle graph of deviations from
  mean in sigma increments.
  .
  The program can be useful for statistically analyze the content of
