@@ -1,11 +1,13 @@
 **circle**: statistics ASCII circle for analysing byte entropy in files.   
 
 **circle** reads all bytes in a file, and counts and arranges them from 0x00 to 0xff. Then it calculates the Standard deviation (sigma) of the data, and arranges the 256 resulting buckets in a circle, in such a way that the distance from the centre is proportional to the byte value (with 0x00 at the center, and ...0xf0-0xff bytes the farthest from it). The char that represents each byte is proportional to the deviation from the mean, in fractions of the standard deviation.   
+
+From v2.6, the list of different bytes counted can be printed using options `-l`, `-L`, `-Z`. Values over the mean will be printed green, and below it, they will be red.
    
 Installation
 ============
 
-**circle** can be installed (as **bytes-circle**) in latest **Ubuntu** and **Debian** using official repositories. Follow [these instructions](http://serverfault.com/questions/550855/how-to-add-debian-testing-repository-to-apt-get) for adding repositories to previous versions' linux distributions, and then just install as usual: 
+**circle** can be installed (as **bytes-circle**) in **Ubuntu** and **Debian** using official repositories. Follow [these instructions](http://serverfault.com/questions/550855/how-to-add-debian-testing-repository-to-apt-get) for adding repositories to previous versions' linux distributions, and then just install as usual: 
 
     $ sudo apt-get install bytes-circle
 
@@ -51,22 +53,28 @@ Options for non-colored consoles (in this case chars represent increments of 0.5
    
     $ bytes-circle -h   
    
-    Show statistics about bytes contained in a file,   
-    as a circle graph of deviations from sigma.   
-   
-    Use:   
-    $ bytes-circle [-o {0|1|2|3}] [-Bbnruh] [-z {0-255}] [<filename>] [<filename>] ...   
-      
-        -o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}   
-        -B : stop processing files on first error encountered   
-        -b : no color   
-        -n : numbers   
-        -r : restrict statistics to the byte buckets that appear   
-             in the file, not to the 256 default value.   
-        -u : uncoloured numbers (-b -n)   
-        -h : prints this help   
-        -z {0-255} : prints a 2nd circle centered on this byte (0==127 !)   
-   
+      circle v2.6 (goo.gl/TNh5dq)
+
+      Show statistics about bytes contained in a file,
+      as a circle graph of deviations from sigma.
+
+      Use:
+      $ circle [-o {0|1|2|3}] [-BblLZnruvh] [-z {0-255}] [<filename>] [<filename>] ...
+
+            -o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}
+            -B : stop processing files on first error encountered
+            -b : no color
+            -l : list number of bytes counted, from 0 to 255
+            -L : list number of bytes counted, excluding zero valued
+            -Z : list number of bytes counted, but only zero valued
+            -n : numbers
+            -r : restrict statistics to the byte buckets that appear
+                 in the file, not to the 256 default value.
+            -u : uncoloured numbers (-b -n)
+            -v : prints version
+            -h : prints this help
+            -z {0-255} : prints a 2nd circle centered on this byte (0==127 !)
+
 License
 =======
 

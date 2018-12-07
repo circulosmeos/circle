@@ -53,7 +53,7 @@
 #endif
 
 #define PACKAGE_NAME    "circle"
-#define PACKAGE_STRING  "circle v2.5 (goo.gl/TNh5dq)"
+#define PACKAGE_STRING  "circle v2.6 (goo.gl/TNh5dq)"
 
 #define BUFFER_LENGTH 4096
 
