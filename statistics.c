@@ -38,6 +38,8 @@ int main ( int argc, char *argv[] ) {
 
     int i, output, global_ouput;
     bool bBreakOnFirstError=false;
+    uint64_t slice_size = 0ULL;
+    uint64_t slice_number = 0ULL;
 
     /*if (argc < 2) {
         print_help();
@@ -45,7 +47,7 @@ int main ( int argc, char *argv[] ) {
     }*/
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "z:o:blLZnuBrvh")) != -1)
+    while ((opt = getopt(argc, argv, "z:o:blLZnuBs:S:rvh")) != -1)
         switch(opt) {
             // help
             case 'h':
@@ -122,6 +124,30 @@ int main ( int argc, char *argv[] ) {
             case 'B':
                 bBreakOnFirstError=true;
                 break;
+            // `-s #` slice file in '# bytes'-sized slices
+            case 's':
+                slice_size = (uint64_t)giveMeAnInteger( optarg );
+                if ( 0ULL == slice_size ) {
+                    fprintf(stderr, "-s Error: slice size must be greater than zero.\n");
+                    return 2;
+                }
+                if ( slice_number > 0ULL ) {
+                    fprintf(stderr, "-[sS] Error: cannot use -s and -S at the same time.\n");
+                    return 2;
+                }
+                break;
+            // `-S #` slice file in # slices
+            case 'S':
+                slice_number = (uint64_t)giveMeAnInteger( optarg );
+                if ( 0ULL == slice_number ) {
+                    fprintf(stderr, "-S Error: number of slices must be greater than zero.\n");
+                    return 2;
+                }
+                if ( slice_size > 0ULL ) {
+                    fprintf(stderr, "-[sS] Error: cannot use -s and -S at the same time.\n");
+                    return 2;
+                }
+                break;
             case '?':
                 if (isprint (optopt)) {
                     fprintf(stderr, "Unknown option `-%c'.\n", optopt);
@@ -137,12 +163,19 @@ int main ( int argc, char *argv[] ) {
 
     if (optind == argc || argc == 1) {
         // file input is stdin
-        analyze_file( "" );
+
+        if ( slice_size > 0ULL ||
+             slice_number > 0ULL ) {
+            fprintf(stderr, "-[sS] Error: slices cannot be used with STDIN input.\n");
+            return 2;
+        }
+
+        analyze_file( "", 0ULL, 0ULL );
     
     } else {
 
         for (i = optind; i < argc; i++) {
-            output = analyze_file( argv[i] );
+            output = analyze_file( argv[i], slice_number, slice_size );
             if (output != 0) {
                 if (bBreakOnFirstError)
                     return 1;
@@ -159,16 +192,22 @@ int main ( int argc, char *argv[] ) {
 }
 
 
-int analyze_file( char *szFile ) {
+int analyze_file(
+    char *szFile,
+    uint64_t slice_number,
+    uint64_t slice_size
+) {
 
-    long long total_size = 0;
+    uint64_t total_size = 0;
     long long bytes[MAX_VALUE+1];
     int number_of_byte_buckets = 0;
 
-    const unsigned int buffer_length = BUFFER_LENGTH;
+    unsigned int buffer_length = BUFFER_LENGTH;
     char buffer[BUFFER_LENGTH];
-    size_t k;
-    size_t bytes_read;
+    size_t k = 0;
+    size_t file_size = 0;
+    size_t bytes_read = 0;
+    size_t total_bytes_read = 0;
     
     //char *szFile;
     FILE *hFile;
@@ -203,66 +242,104 @@ int analyze_file( char *szFile ) {
     }
 
     // calculate positions for each byte bucket,
-    //  to represent an ASCII circle:
+    // to represent an ASCII circle:
     create_circle(coordinates);
 
-    // fill counter matrix with zeros
-    for (i=0; i<(MAX_VALUE+1); ++i)
-        bytes[i] = 0;
+    // obtain file size
+    // and use it to calculate a valid slice_size
+    // ( if -[sS] was indicated )
+    if ( 0 != strlen(szFile) &&
+        ( slice_number > 0ULL ||
+          slice_size > 0ULL ) 
+    ) {
+        struct stat st;
+        stat(szFile, &st);
+        file_size = st.st_size;
 
-    // actually count different bytes in file
+        // calculate slice_size to use always this value from now on
+        if ( slice_number > 0ULL ) {
+            slice_size = (uint64_t)((double)file_size / (double)slice_number);
+        }
+
+        if ( slice_size == 0ULL ) {
+            fprintf(stderr, "-S Error: slice number too big for this file.\n");
+            return 2;
+        }
+    }
+
+    // process file
+    // ( with slices if -[sS] was indicated )
+    total_bytes_read = 0;
     do {
-        bytes_read = fread(buffer, 1, buffer_length, hFile);
-        for (k = 0; k < bytes_read; ++k)
-            ++bytes[(unsigned char)buffer[k]];
-        total_size += bytes_read;
-    } while (bytes_read == buffer_length);
+
+        buffer_length = BUFFER_LENGTH;
+        total_size = 0;
+
+        // fill counter matrix with zeros
+        for (i=0; i<(MAX_VALUE+1); ++i)
+            bytes[i] = 0;
+
+        // actually count different bytes in file
+        do {
+
+            if ( slice_size > 0ULL ) {
+                if ( total_size + BUFFER_LENGTH > slice_size ) {
+                    buffer_length = slice_size - total_size;
+                }
+            }
+
+            bytes_read = fread(buffer, 1, buffer_length, hFile);
+            for (k = 0; k < bytes_read; ++k)
+                ++bytes[(unsigned char)buffer[k]];
+            total_size += bytes_read;
+
+        } while ( bytes_read == buffer_length &&
+                ( ( slice_size > 0ULL )? ( total_size < slice_size ) : true )
+                );
+
+        // sigma calculation
+        calculate_sigma(
+            bytes,
+            &sigma,
+            &mean,
+            &number_of_byte_buckets,
+            total_size
+        );
+    
+        // fill circle's container matrix with zeros
+        empty_circle(
+            circle,
+            circle2,
+            two_circles_flag
+        );
+
+        // print circle with associated statistics on screen
+        print_circle_on_screen(
+            bytes,
+            sigma,
+            mean,
+            coordinates,
+            circle,
+            circle2,
+            two_circles_flag,
+            two_circles_value,
+            restrict_statistics,
+            list_bytes,
+            number_of_byte_buckets,
+            szFile,
+            total_size,
+            total_bytes_read,
+            slice_size
+        );
+
+        total_bytes_read += total_size;
+
+    } while ( total_bytes_read < file_size );
+
 
     // close file: it is not needed any more
     fclose (hFile);
 
-
-    // .................................................
-
-
-    // sigma calculation
-    calculate_sigma(
-        bytes,
-        &sigma,
-        &mean,
-        &number_of_byte_buckets,
-        total_size
-    );
-   
-
-    // .................................................
-
-
-    // fill circle's container matrix with zeros
-    empty_circle(
-        circle,
-        circle2,
-        two_circles_flag
-    );
-
-
-    // print circle with associated statistics on screen
-    print_circle_on_screen(
-        bytes,
-        sigma,
-        mean,
-        coordinates,
-        circle,
-        circle2,
-        two_circles_flag,
-        two_circles_value,
-        restrict_statistics,
-        list_bytes,
-        number_of_byte_buckets,
-        szFile,
-        total_size
-    );
-    
 
     return 0;
 
@@ -352,7 +429,9 @@ void print_circle_on_screen(
     int list_bytes,
     int number_of_byte_buckets,
     char *szFile,
-    long long total_size
+    long long total_size,
+    long long total_bytes_read,
+    uint64_t slice_size
 ) {
 
     int i = 0;
@@ -433,10 +512,16 @@ void print_circle_on_screen(
     // print various statistics:
 
     // print file name, so output from batch processes is useful:
-    if (strlen(szFile)==0)
+    if (strlen(szFile)==0) {
         printf("file =\tstdin\n");
-    else
-        printf("file =\t%s\n", szFile);
+    } else {
+        printf("file =\t%s", szFile);
+        if ( slice_size > 0 ) {
+            printf( "\t[%llu-%llu] bytes\n", total_bytes_read + 1, total_bytes_read + total_size );
+        } else {
+            printf( "\n" );
+        }
+    }
 
     if ( !restrict_statistics || number_of_byte_buckets == (MAX_VALUE+1) ) {
         printf("mean =\t%.3f\n", mean);

@@ -37,6 +37,7 @@
 #include <stdlib.h>
 #include <unistd.h> // getopt()
 #include <ctype.h>  // isprint()
+#include <sys/stat.h> //stat()
 
 #ifndef __sun
 # include <getopt.h> // getopt() compatible with -std=c99
@@ -75,7 +76,11 @@ extern const int MAX_VALUE;
 
 void print_circle_value( signed int value );
 
-int analyze_file( char *szFile );
+int analyze_file(
+    char *szFile,
+    uint64_t slice_number,
+    uint64_t slice_size
+);
 
 void empty_circle(
     signed int circle[MAX_X][MAX_Y],
@@ -104,11 +109,15 @@ void print_circle_on_screen(
     int list_bytes,
     int number_of_byte_buckets,
     char *szFile,
-    long long total_size
+    long long total_size,
+    long long total_bytes_read,
+    uint64_t slice_size
 );
 
 void print_circle_value( signed int value );
 
 void print_help();
+
+uint64_t giveMeAnInteger( const char *original_input );
 
 #endif /* STATISTICS_CIRCLE_H_ */
