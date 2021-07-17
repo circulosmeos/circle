@@ -65,7 +65,7 @@
 #define KWHT  "\x1B[37m"
 #define RESET "\x1B[m"
 
-void create_circle(double complex *coordinates);
+void create_circle( double complex *coordinates );
 
 extern const signed int CIRCLE_EMPTY_VALUE;
 
@@ -73,9 +73,41 @@ extern const int MAX_X, MAX_Y;
 
 extern const int MAX_VALUE;
 
-void print_circle_value(signed int value);
+void print_circle_value( signed int value );
 
-int analyze_file(char *szFile);
+int analyze_file( char *szFile );
+
+void empty_circle(
+    signed int circle[MAX_X][MAX_Y],
+    signed int circle2[MAX_X][MAX_Y],
+    bool two_circles_flag
+);
+
+void calculate_sigma(
+    long long *bytes,
+    double *sigma_parameter,
+    double *mean_parameter,
+    int *number_of_byte_buckets_parameter,
+    long long total_size
+);
+
+void print_circle_on_screen(
+    long long *bytes,
+    double sigma,
+    double mean,
+    double complex *coordinates,
+    signed int circle[MAX_X][MAX_Y],
+    signed int circle2[MAX_X][MAX_Y],
+    bool two_circles_flag,
+    int two_circles_value,
+    bool restrict_statistics,
+    int list_bytes,
+    int number_of_byte_buckets,
+    char *szFile,
+    long long total_size
+);
+
+void print_circle_value( signed int value );
 
 void print_help();
 

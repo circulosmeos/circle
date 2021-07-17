@@ -118,6 +118,7 @@ int main ( int argc, char *argv[] ) {
                 color_flag=false;
                 numbers_flag=true;
                 break;
+            // end process on first error encountered when analyzing multiple files
             case 'B':
                 bBreakOnFirstError=true;
                 break;
@@ -158,14 +159,11 @@ int main ( int argc, char *argv[] ) {
 }
 
 
-int analyze_file(char *szFile) {
+int analyze_file( char *szFile ) {
 
     long long total_size = 0;
     long long bytes[MAX_VALUE+1];
     int number_of_byte_buckets = 0;
-
-    char *SIZE_UNITS[6] = { "bytes", "kiB", "MiB", "GiB", "TiB", "PiB"};
-    double readable_size=0.0;
 
     const unsigned int buffer_length = BUFFER_LENGTH;
     char buffer[BUFFER_LENGTH];
@@ -176,20 +174,20 @@ int analyze_file(char *szFile) {
     FILE *hFile;
 
     // sigma
-    double mean;
-    double sigma;
-    double deviation;
+    double mean = 0.0;
+    double sigma = 0.0;
 
-    // for circle generation:
-    //int MAX_X=50, MAX_Y=16;
+    // 'coordinates' contains the integer coordinates that correspond
+    // to each byte bucket in a MAX_X * MAX_Y square containing the ASCII circle:
     double complex coordinates[MAX_VALUE+1];
+    // 'circle' represents the MAX_X * MAX_Y square containing the ASCII circle,
+    // which will be filled in the corresponding coordinates with
+    // appropriate chars representing sigma values:
     signed int circle[MAX_X][MAX_Y];
     signed int circle2[MAX_X][MAX_Y];
-    int i, j;
+    int i;
 
 
-    // .................................................
-    // .................................................
     // .................................................
 
 
@@ -203,6 +201,10 @@ int analyze_file(char *szFile) {
         fprintf (stderr, "Could not open file '%s'\n", szFile);
         return 3;
     }
+
+    // calculate positions for each byte bucket,
+    //  to represent an ASCII circle:
+    create_circle(coordinates);
 
     // fill counter matrix with zeros
     for (i=0; i<(MAX_VALUE+1); ++i)
@@ -221,13 +223,89 @@ int analyze_file(char *szFile) {
 
 
     // .................................................
-    // .................................................
+
+
+    // sigma calculation
+    calculate_sigma(
+        bytes,
+        &sigma,
+        &mean,
+        &number_of_byte_buckets,
+        total_size
+    );
+   
+
     // .................................................
 
 
-    // sigma calculation:
-    sigma = 0.0;
-    mean  = 0.0;
+    // fill circle's container matrix with zeros
+    empty_circle(
+        circle,
+        circle2,
+        two_circles_flag
+    );
+
+
+    // print circle with associated statistics on screen
+    print_circle_on_screen(
+        bytes,
+        sigma,
+        mean,
+        coordinates,
+        circle,
+        circle2,
+        two_circles_flag,
+        two_circles_value,
+        restrict_statistics,
+        list_bytes,
+        number_of_byte_buckets,
+        szFile,
+        total_size
+    );
+    
+
+    return 0;
+
+}
+
+
+// fill circle's container matrix with zeros
+void empty_circle(
+    signed int circle[MAX_X][MAX_Y],
+    signed int circle2[MAX_X][MAX_Y],
+    bool two_circles_flag
+) {
+
+    int i = 0;
+    int j = 0;
+
+    // fill circle's container matrix with zeros
+    for (i=0; i<MAX_X; i++) {
+        for (j=0; j<MAX_Y; j++) {
+            circle[i][j]=CIRCLE_EMPTY_VALUE;
+            if (two_circles_flag)
+                circle2[i][j]=CIRCLE_EMPTY_VALUE;
+        }
+    }
+
+}
+
+
+// sigma calculation
+void calculate_sigma(
+    long long *bytes,
+    double *sigma_parameter,
+    double *mean_parameter,
+    int *number_of_byte_buckets_parameter,
+    long long total_size
+) {
+
+    int i = 0;
+
+    int number_of_byte_buckets = 0;
+    double mean = 0.0;
+    double sigma = 0.0;
+
     // 1. mean value:
     if ( restrict_statistics ) {
         for (i=0; i<=MAX_VALUE; i++) {
@@ -252,26 +330,39 @@ int analyze_file(char *szFile) {
         }
         sigma = sqrt( sigma/(double)(MAX_VALUE+1) );
     }
-    
+
+    *sigma_parameter = sigma;
+    *mean_parameter = mean;
+    *number_of_byte_buckets_parameter = number_of_byte_buckets;
+
+}
 
 
-    // .................................................
-    // .................................................
-    // .................................................
+// print circle with associated statistics on screen
+void print_circle_on_screen(
+    long long *bytes,
+    double sigma,
+    double mean,
+    double complex *coordinates,
+    signed int circle[MAX_X][MAX_Y],
+    signed int circle2[MAX_X][MAX_Y],
+    bool two_circles_flag,
+    int two_circles_value,
+    bool restrict_statistics,
+    int list_bytes,
+    int number_of_byte_buckets,
+    char *szFile,
+    long long total_size
+) {
 
+    int i = 0;
+    int j = 0;
 
-    create_circle(coordinates);
+    char *SIZE_UNITS[6] = { "bytes", "kiB", "MiB", "GiB", "TiB", "PiB"};
+    double readable_size=0.0;
 
-    // fill circle's container matrix with zeros
-    for (i=0; i<MAX_X; i++) {
-        for (j=0; j<MAX_Y; j++) {
-            circle[i][j]=CIRCLE_EMPTY_VALUE;
-            if (two_circles_flag)
-                circle2[i][j]=CIRCLE_EMPTY_VALUE;
-        }
-    }
+    double deviation = 0.0;
 
-    // finally!
     // fills circle's container matrix with ASCII art chars
     for (i=0; i<=MAX_VALUE; i++) {
 
@@ -338,8 +429,6 @@ int analyze_file(char *szFile) {
     }
 
     // .................................................
-    // .................................................
-    // .................................................
 
     // print various statistics:
 
@@ -385,12 +474,12 @@ int analyze_file(char *szFile) {
         printf("\n");
     }
 
-    return 0;
-
 }
 
 
-void print_circle_value(signed int value) {
+void print_circle_value(
+    signed int value
+) {
 
     char *color;
 
@@ -453,5 +542,81 @@ void print_help() {
         "\t-h : prints this help\n"
         "\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"
         );
+
+}
+
+
+// obtain an integer from a string that may used decimal point,
+// with valid suffixes: kmgtpe (powers of 10) and KMGTPE (powers of 2),
+// and valid prefixes: "0" (octal), "0x" or "0X" (hexadecimal).
+// Examples:
+// "83m" == 83*10^6, "9G" == 9*2^30, "0xa" == 10, "010k" = 8000, "23.5k" = 23500
+// INPUT:
+// char *original_input: string containing the data (only read)
+// OUTPUT:
+// 64 bit long integer number
+uint64_t giveMeAnInteger( const char *original_input ) {
+
+    unsigned i = 0;
+    char *PowerSuffixes = "kmgtpeKMGTPE";
+    unsigned PowerSuffixesLength = strlen(PowerSuffixes)/2;
+    char *input = NULL;
+    uint64_t result = 1;
+
+    if ( NULL == original_input )
+        return 0LLU;
+
+    input = malloc( strlen(original_input) +1 );
+    memcpy(input, original_input, strlen(original_input) +1);
+
+    if ( strlen(input) > 1 ) {
+        // look for suffixes of size
+
+        for ( i=0; i<strlen(PowerSuffixes); i++ ) {
+            if ( (char *)strchr(input, PowerSuffixes[i]) == (char *)(input + strlen(input) -1) ) {
+                if ( i >= PowerSuffixesLength ) {
+                    result = pow( 2.0, 10.0 + 10.0*(double)(i - PowerSuffixesLength) );
+                } else {
+                    result = pow( 10.0, 3.0 + 3.0*(double)i );
+                }
+                input[strlen(input) -1] = '\0';
+                break;
+            }
+        }
+
+    }
+
+    if ( strlen(input) > 1 ) {
+        // look fo prefixes of base
+
+        if ( input[0] == '0' ) {
+            if ( strlen(input) > 2 &&
+                 input[1] == '.' ) {
+                // this is a float-point number
+                ;
+            } else {
+                // hexadecimal or octal number:
+                if ( strlen(input) > 2 &&
+                     ( input[1] == 'x' || input[1] == 'X' ) ) {
+                    // hexadecimal
+                    result = strtoll( input +2, NULL, 16 ) * result;
+                } else {
+                    // octal
+                    result = strtoll( input +1, NULL, 8 ) * result;
+                    // Note: 0 is zero decimal and zero octal :-)
+                }
+                input[0] = '1';
+                input[1] = '\0';
+            }
+        }
+
+    }
+
+    result = (uint64_t)(strtod(input, NULL) * (double)result);
+
+    if ( NULL != input )
+        free( input );
+
+    return result;
 
 }
