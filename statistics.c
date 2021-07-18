@@ -40,11 +40,11 @@ int main ( int argc, char *argv[] ) {
     int i, output, global_ouput;
     bool bBreakOnFirstError=false;
     bool bShowGlobalFileStatistics=false;
-    uint64_t slice_size = 0ULL;
-    uint64_t slice_number = 0ULL;
-    uint64_t from_byte = 0ULL;
-    uint64_t to_byte = 0ULL;
-    uint64_t to_byte_increment = 0ULL;
+    unsigned long long slice_size = 0ULL;
+    unsigned long long slice_number = 0ULL;
+    unsigned long long from_byte = 0ULL;
+    unsigned long long to_byte = 0ULL;
+    unsigned long long to_byte_increment = 0ULL;
 
     /*if (argc < 2) {
         print_help();
@@ -135,7 +135,7 @@ int main ( int argc, char *argv[] ) {
                 break;
             // `-s #` slice file in '# bytes'-sized slices
             case 's':
-                slice_size = (uint64_t)giveMeAnInteger( optarg );
+                slice_size = (unsigned long long)giveMeAnInteger( optarg );
                 if ( 0ULL == slice_size ) {
                     fprintf(stderr, "-s Error: slice size must be greater than zero.\n");
                     return 2;
@@ -147,7 +147,7 @@ int main ( int argc, char *argv[] ) {
                 break;
             // `-S #` slice file in # slices
             case 'S':
-                slice_number = (uint64_t)giveMeAnInteger( optarg );
+                slice_number = (unsigned long long)giveMeAnInteger( optarg );
                 if ( 0ULL == slice_number ) {
                     fprintf(stderr, "-S Error: number of slices must be greater than zero.\n");
                     return 2;
@@ -158,21 +158,21 @@ int main ( int argc, char *argv[] ) {
                 }
                 break;
             case 'f':
-                from_byte = (uint64_t)giveMeAnInteger( optarg );
+                from_byte = (unsigned long long)giveMeAnInteger( optarg );
                 if ( from_byte == 0ULL ) {
                     fprintf(stderr, "-f Error: value must be greater than zero.\n");
                     return 2;
                 }
                 break;
             case 't':
-                to_byte = (uint64_t)giveMeAnInteger( optarg );
+                to_byte = (unsigned long long)giveMeAnInteger( optarg );
                 if ( to_byte == 0ULL ) {
                     fprintf(stderr, "-t Error: value must be greater than zero.\n");
                     return 2;
                 }
                 break;
             case 'T':
-                to_byte_increment = (uint64_t)giveMeAnInteger( optarg );
+                to_byte_increment = (unsigned long long)giveMeAnInteger( optarg );
                 if ( to_byte_increment == 0ULL ) {
                     fprintf(stderr, "-T Error: value must be greater than zero.\n");
                     return 2;
@@ -253,16 +253,16 @@ int main ( int argc, char *argv[] ) {
 
 int analyze_file(
     char *szFile,
-    uint64_t slice_number,
-    uint64_t slice_size,
+    unsigned long long slice_number,
+    unsigned long long slice_size,
     bool bShowGlobalFileStatistics,
-    uint64_t from_byte,
-    uint64_t to_byte
+    unsigned long long from_byte,
+    unsigned long long to_byte
 ) {
 
-    uint64_t total_size = 0;
-    long long bytes[MAX_VALUE+1];
-    long long global_bytes[MAX_VALUE+1];
+    unsigned long long total_size = 0ULL;
+    unsigned long long bytes[MAX_VALUE+1];
+    unsigned long long global_bytes[MAX_VALUE+1];
     int number_of_byte_buckets = 0;
 
     unsigned int buffer_length = BUFFER_LENGTH;
@@ -324,11 +324,11 @@ int analyze_file(
         ) {
             // calculate slice_size to use always this value from now on
             if ( slice_number > 0ULL ) {
-                uint64_t sliceable_size = file_size - from_byte;
+                unsigned long long sliceable_size = file_size - from_byte;
                 if ( to_byte > 0ULL ) {
                     sliceable_size = to_byte - from_byte;
                 }
-                slice_size = (uint64_t)((double)sliceable_size / (double)slice_number);
+                slice_size = (unsigned long long)((double)sliceable_size / (double)slice_number);
                 // adjust slice_size to produce the indicated number of slices (slice_number)
                 // at the cost of making the last slice slightly smaller:
                 while ( slice_size * slice_number <= sliceable_size ) {
@@ -345,11 +345,11 @@ int analyze_file(
         // seek to from_byte position
         if ( from_byte > 0ULL ) {
             if ( from_byte > file_size ) {
-                fprintf(stderr, "Error: file '%s' smaller than `-f %ld`.\n", szFile, from_byte);
+                fprintf(stderr, "Error: file '%s' smaller than `-f %llu`.\n", szFile, from_byte);
                 return 2;
             }
-            if ( 0!= fseeko( hFile, from_byte - 1, SEEK_SET) ) {
-                fprintf(stderr, "Error: cannot seek file '%s' to position '%ld'.\n", szFile, from_byte);
+            if ( 0 != fseeko( hFile, from_byte - 1, SEEK_SET) ) {
+                fprintf(stderr, "Error: cannot seek file '%s' to position '%llu'.\n", szFile, from_byte);
                 return 2;
             }
             total_bytes_read = from_byte - 1;
@@ -379,7 +379,7 @@ int analyze_file(
         if ( from_byte > 0ULL &&
              total_bytes_read < (from_byte - 1)
         ) {
-            fprintf(stderr, "Error: data input smaller (%ld bytes) than -f %ld\n", total_size, from_byte);
+            fprintf(stderr, "Error: data input smaller (%llu bytes) than -f %llu\n", total_size, from_byte);
             return 2;
         }
     }
@@ -389,11 +389,11 @@ int analyze_file(
     do {
 
         buffer_length = BUFFER_LENGTH;
-        total_size = 0;
+        total_size = 0ULL;
 
         // fill counter matrix with zeros
         for (i=0; i<(MAX_VALUE+1); ++i) {
-            bytes[i] = 0;
+            bytes[i] = 0ULL;
         }
 
         // actually count different bytes in file
@@ -523,9 +523,9 @@ int analyze_file(
             szFile,
             total_bytes_read,
             total_bytes_read,
-            0,
-            0,
-            0
+            0ULL,
+            0ULL,
+            0ULL
         );
     }
 
@@ -559,11 +559,11 @@ void empty_circle(
 
 // sigma calculation
 void calculate_sigma(
-    long long *bytes,
+    unsigned long long *bytes,
     double *sigma_parameter,
     double *mean_parameter,
     int *number_of_byte_buckets_parameter,
-    long long total_size
+    unsigned long long total_size
 ) {
 
     int i = 0;
@@ -606,7 +606,7 @@ void calculate_sigma(
 
 // print circle with associated statistics on screen
 void print_circle_on_screen(
-    long long *bytes,
+    unsigned long long *bytes,
     double sigma,
     double mean,
     double complex *coordinates,
@@ -618,11 +618,11 @@ void print_circle_on_screen(
     int list_bytes,
     int number_of_byte_buckets,
     char *szFile,
-    long long total_size,
-    long long total_bytes_read,
-    uint64_t slice_size,
-    uint64_t from_byte,
-    uint64_t to_byte
+    unsigned long long total_size,
+    unsigned long long total_bytes_read,
+    unsigned long long slice_size,
+    unsigned long long from_byte,
+    unsigned long long to_byte
 ) {
 
     int i = 0;
@@ -837,13 +837,13 @@ void print_help() {
 // char *original_input: string containing the data (only read)
 // OUTPUT:
 // 64 bit long integer number
-uint64_t giveMeAnInteger( const char *original_input ) {
+unsigned long long giveMeAnInteger( const char *original_input ) {
 
     unsigned i = 0;
     char *PowerSuffixes = "kmgtpeKMGTPE";
     unsigned PowerSuffixesLength = strlen(PowerSuffixes)/2;
     char *input = NULL;
-    uint64_t result = 1;
+    unsigned long long result = 1;
 
     if ( NULL == original_input )
         return 0LLU;
@@ -894,7 +894,7 @@ uint64_t giveMeAnInteger( const char *original_input ) {
 
     }
 
-    result = (uint64_t)(strtod(input, NULL) * (double)result);
+    result = (unsigned long long)(strtod(input, NULL) * (double)result);
 
     if ( NULL != input )
         free( input );

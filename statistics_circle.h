@@ -79,11 +79,11 @@ void print_circle_value( signed int value );
 
 int analyze_file(
     char *szFile,
-    uint64_t slice_number,
-    uint64_t slice_size,
+    unsigned long long slice_number,
+    unsigned long long slice_size,
     bool bShowGlobalFileStatistics,
-    uint64_t from_byte,
-    uint64_t to_byte
+    unsigned long long from_byte,
+    unsigned long long to_byte
 );
 
 void empty_circle(
@@ -93,15 +93,15 @@ void empty_circle(
 );
 
 void calculate_sigma(
-    long long *bytes,
+    unsigned long long *bytes,
     double *sigma_parameter,
     double *mean_parameter,
     int *number_of_byte_buckets_parameter,
-    long long total_size
+    unsigned long long total_size
 );
 
 void print_circle_on_screen(
-    long long *bytes,
+    unsigned long long *bytes,
     double sigma,
     double mean,
     double complex *coordinates,
@@ -113,17 +113,17 @@ void print_circle_on_screen(
     int list_bytes,
     int number_of_byte_buckets,
     char *szFile,
-    long long total_size,
-    long long total_bytes_read,
-    uint64_t slice_size,
-    uint64_t from_byte,
-    uint64_t to_byte
+    unsigned long long total_size,
+    unsigned long long total_bytes_read,
+    unsigned long long slice_size,
+    unsigned long long from_byte,
+    unsigned long long to_byte
 );
 
 void print_circle_value( signed int value );
 
 void print_help();
 
-uint64_t giveMeAnInteger( const char *original_input );
+unsigned long long giveMeAnInteger( const char *original_input );
 
 #endif /* STATISTICS_CIRCLE_H_ */
