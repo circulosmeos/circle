@@ -38,6 +38,7 @@ int main ( int argc, char *argv[] ) {
 
     int i, output, global_ouput;
     bool bBreakOnFirstError=false;
+    bool bShowGlobalFileStatistics=false;
     uint64_t slice_size = 0ULL;
     uint64_t slice_number = 0ULL;
 
@@ -47,7 +48,7 @@ int main ( int argc, char *argv[] ) {
     }*/
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "z:o:blLZnuBs:S:rvh")) != -1)
+    while ((opt = getopt(argc, argv, "z:o:blLZnuBgs:S:rvh")) != -1)
         switch(opt) {
             // help
             case 'h':
@@ -124,6 +125,10 @@ int main ( int argc, char *argv[] ) {
             case 'B':
                 bBreakOnFirstError=true;
                 break;
+            // show global file statistics when using -[sS]
+            case 'g':
+                bShowGlobalFileStatistics=true;
+                break;
             // `-s #` slice file in '# bytes'-sized slices
             case 's':
                 slice_size = (uint64_t)giveMeAnInteger( optarg );
@@ -150,14 +155,23 @@ int main ( int argc, char *argv[] ) {
                 break;
             case '?':
                 if (isprint (optopt)) {
-                    fprintf(stderr, "Unknown option `-%c'.\n", optopt);
+                    fprintf(stderr, "Unknown option `-%c`.\n", optopt);
                     print_help();
-                } else
-                    fprintf(stderr, "Unknown option character `\\x%x'.\n", optopt);
+                } else {
+                    fprintf(stderr, "Unknown option character `\\x%x`.\n", optopt);
+                }
                 return 2;
             default:
                 abort ();
         }
+
+    if ( true == bShowGlobalFileStatistics &&
+         slice_size == 0 &&
+         slice_number == 0
+    ) {
+        fprintf(stderr, "-g Error: this option must be used with -[sS].\n");
+        return 2;
+    }
 
     global_ouput=0;
 
@@ -170,12 +184,12 @@ int main ( int argc, char *argv[] ) {
             return 2;
         }
 
-        analyze_file( "", 0ULL, 0ULL );
+        analyze_file( "", 0ULL, 0ULL, false );
     
     } else {
 
         for (i = optind; i < argc; i++) {
-            output = analyze_file( argv[i], slice_number, slice_size );
+            output = analyze_file( argv[i], slice_number, slice_size, bShowGlobalFileStatistics );
             if (output != 0) {
                 if (bBreakOnFirstError)
                     return 1;
@@ -195,11 +209,13 @@ int main ( int argc, char *argv[] ) {
 int analyze_file(
     char *szFile,
     uint64_t slice_number,
-    uint64_t slice_size
+    uint64_t slice_size,
+    bool bShowGlobalFileStatistics
 ) {
 
     uint64_t total_size = 0;
     long long bytes[MAX_VALUE+1];
+    long long global_bytes[MAX_VALUE+1];
     int number_of_byte_buckets = 0;
 
     unsigned int buffer_length = BUFFER_LENGTH;
@@ -334,11 +350,57 @@ int analyze_file(
 
         total_bytes_read += total_size;
 
+        if ( true == bShowGlobalFileStatistics ) {
+            // increase global_bytes count with values just read
+            for (i=0; i<(MAX_VALUE+1); ++i)
+                global_bytes[i] += bytes[i];
+        }
+
     } while ( total_bytes_read < file_size );
 
 
     // close file: it is not needed any more
     fclose (hFile);
+
+
+    if ( true == bShowGlobalFileStatistics ) {
+        // print also global_bytes count summary:
+
+        // sigma calculation
+        calculate_sigma(
+            global_bytes,
+            &sigma,
+            &mean,
+            &number_of_byte_buckets,
+            file_size
+        );
+    
+        // fill circle's container matrix with zeros
+        empty_circle(
+            circle,
+            circle2,
+            two_circles_flag
+        );
+
+        // print circle with associated statistics on screen
+        print_circle_on_screen(
+            global_bytes,
+            sigma,
+            mean,
+            coordinates,
+            circle,
+            circle2,
+            two_circles_flag,
+            two_circles_value,
+            restrict_statistics,
+            list_bytes,
+            number_of_byte_buckets,
+            szFile,
+            file_size,
+            file_size,
+            0
+        );
+    }
 
 
     return 0;

@@ -79,7 +79,8 @@ void print_circle_value( signed int value );
 int analyze_file(
     char *szFile,
     uint64_t slice_number,
-    uint64_t slice_size
+    uint64_t slice_size,
+    bool bShowGlobalFileStatistics
 );
 
 void empty_circle(
