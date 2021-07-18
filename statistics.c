@@ -406,6 +406,13 @@ int analyze_file(
                 }
             }
 
+            // adjust buffer_length if to_byte
+            if ( to_byte > 0ULL ) {
+                if ( total_bytes_read + total_size + buffer_length > to_byte ) {
+                    buffer_length = to_byte - (total_bytes_read + total_size);
+                }
+            }
+
             bytes_read = fread(buffer, 1, buffer_length, hFile);
 
             //
@@ -417,7 +424,8 @@ int analyze_file(
             total_size += bytes_read;
 
         } while ( bytes_read == buffer_length &&
-                ( ( slice_size > 0ULL )? ( total_size < slice_size ) : true )
+                ( ( slice_size > 0ULL )? ( total_size < slice_size ) : true ) &&
+                ( to_byte == 0ULL || ( total_bytes_read + total_size < to_byte ) )
                 );
 
         // sigma calculation
@@ -466,9 +474,13 @@ int analyze_file(
             }
         }
 
-    } while ( ( 0 != strlen(szFile) )?
-                ( total_bytes_read < file_size ):   // :regular file
-                ( ! feof( hFile ) )                 // :STDIN
+    } while ( ( ( 0 != strlen(szFile) )?
+                // regular file:
+                ( total_bytes_read < file_size ):
+                // STDIN:
+                ( ! feof( hFile ) ) )
+                &&
+                ( to_byte == 0ULL || total_bytes_read < to_byte )
             );
 
 
@@ -698,7 +710,8 @@ void print_circle_on_screen(
     }
 
     if ( slice_size > 0 ||
-         from_byte > 0 ) {
+         from_byte > 0 ||
+         to_byte > 0 ) {
         printf( "\t, [%llu-%llu] bytes", total_bytes_read + 1, total_bytes_read + total_size );
     }
     printf("\n");
