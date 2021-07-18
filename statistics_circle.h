@@ -81,7 +81,9 @@ int analyze_file(
     char *szFile,
     uint64_t slice_number,
     uint64_t slice_size,
-    bool bShowGlobalFileStatistics
+    bool bShowGlobalFileStatistics,
+    uint64_t from_byte,
+    uint64_t to_byte
 );
 
 void empty_circle(
@@ -113,7 +115,9 @@ void print_circle_on_screen(
     char *szFile,
     long long total_size,
     long long total_bytes_read,
-    uint64_t slice_size
+    uint64_t slice_size,
+    uint64_t from_byte,
+    uint64_t to_byte
 );
 
 void print_circle_value( signed int value );

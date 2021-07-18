@@ -42,6 +42,9 @@ int main ( int argc, char *argv[] ) {
     bool bShowGlobalFileStatistics=false;
     uint64_t slice_size = 0ULL;
     uint64_t slice_number = 0ULL;
+    uint64_t from_byte = 0ULL;
+    uint64_t to_byte = 0ULL;
+    uint64_t to_byte_increment = 0ULL;
 
     /*if (argc < 2) {
         print_help();
@@ -49,7 +52,7 @@ int main ( int argc, char *argv[] ) {
     }*/
 
     int opt = 0;
-    while ((opt = getopt(argc, argv, "z:o:blLZnuBgs:S:rvh")) != -1)
+    while ((opt = getopt(argc, argv, "z:o:blLZnuBgs:S:f:t:T:rvh")) != -1)
         switch(opt) {
             // help
             case 'h':
@@ -154,6 +157,27 @@ int main ( int argc, char *argv[] ) {
                     return 2;
                 }
                 break;
+            case 'f':
+                from_byte = (uint64_t)giveMeAnInteger( optarg );
+                if ( from_byte == 0ULL ) {
+                    fprintf(stderr, "-f Error: value must be greater than zero.\n");
+                    return 2;
+                }
+                break;
+            case 't':
+                to_byte = (uint64_t)giveMeAnInteger( optarg );
+                if ( to_byte == 0ULL ) {
+                    fprintf(stderr, "-t Error: value must be greater than zero.\n");
+                    return 2;
+                }
+                break;
+            case 'T':
+                to_byte_increment = (uint64_t)giveMeAnInteger( optarg );
+                if ( to_byte_increment == 0ULL ) {
+                    fprintf(stderr, "-T Error: value must be greater than zero.\n");
+                    return 2;
+                }
+                break;
             case '?':
                 if (isprint (optopt)) {
                     fprintf(stderr, "Unknown option `-%c`.\n", optopt);
@@ -174,6 +198,18 @@ int main ( int argc, char *argv[] ) {
         return 2;
     }
 
+    if ( to_byte_increment > 0ULL ) {
+        // calculate to_byte value and dismiss to_byte_increment
+        to_byte = from_byte + to_byte_increment;
+    }
+
+    if ( ( from_byte > 0ULL && to_byte > 0ULL ) &&
+         to_byte <= from_byte
+    ) {
+        fprintf(stderr, "-[ftT] Error: -t value must be greater than -f value.\n");
+        return 2;
+    }
+
     global_ouput=0;
 
     if (optind == argc || argc == 1) {
@@ -184,18 +220,27 @@ int main ( int argc, char *argv[] ) {
             return 2;
         }
 
-        analyze_file( "", 0, slice_size, bShowGlobalFileStatistics );
+        analyze_file( "",
+                    0, slice_size,
+                    bShowGlobalFileStatistics,
+                    from_byte, to_byte );
     
     } else {
 
         for (i = optind; i < argc; i++) {
-            output = analyze_file( argv[i], slice_number, slice_size, bShowGlobalFileStatistics );
+
+            output = analyze_file( argv[i],
+                                slice_number, slice_size,
+                                bShowGlobalFileStatistics,
+                                from_byte, to_byte );
+
             if (output != 0) {
                 if (bBreakOnFirstError)
                     return 1;
                 else
                     global_ouput=output;                
             }
+
         }
 
     }
@@ -210,7 +255,9 @@ int analyze_file(
     char *szFile,
     uint64_t slice_number,
     uint64_t slice_size,
-    bool bShowGlobalFileStatistics
+    bool bShowGlobalFileStatistics,
+    uint64_t from_byte,
+    uint64_t to_byte
 ) {
 
     uint64_t total_size = 0;
@@ -249,8 +296,9 @@ int analyze_file(
     if (strlen(szFile)==0) {
         SET_BINARY_MODE(STDIN); // sets binary mode for stdin in Windows
         hFile = stdin;
-    } else
+    } else {
         hFile = fopen(szFile, "rb");
+    }
 
     if ( hFile == NULL  ) {
         fprintf (stderr, "Could not open file '%s'\n", szFile);
@@ -261,31 +309,83 @@ int analyze_file(
     // to represent an ASCII circle:
     create_circle(coordinates);
 
-    // obtain file size
-    // and use it to calculate a valid slice_size
-    // ( if -[sS] was indicated )
-    if ( 0 != strlen(szFile) &&
-        ( slice_number > 0ULL ||
-          slice_size > 0ULL )
-    ) {
+
+    if ( 0 != strlen(szFile) ) {
+
+        // obtain file size
         struct stat st;
         stat(szFile, &st);
         file_size = st.st_size;
 
-        // calculate slice_size to use always this value from now on
-        if ( slice_number > 0ULL ) {
-            slice_size = (uint64_t)((double)file_size / (double)slice_number);
+        // use file_size to calculate a valid slice_size
+        // ( if -[sS] was indicated )
+        if ( slice_number > 0ULL ||
+             slice_size > 0ULL
+        ) {
+            // calculate slice_size to use always this value from now on
+            if ( slice_number > 0ULL ) {
+                uint64_t sliceable_size = file_size - from_byte;
+                if ( to_byte > 0ULL ) {
+                    sliceable_size = to_byte - from_byte;
+                }
+                slice_size = (uint64_t)((double)sliceable_size / (double)slice_number);
+                // adjust slice_size to produce the indicated number of slices (slice_number)
+                // at the cost of making the last slice slightly smaller:
+                while ( slice_size * slice_number <= sliceable_size ) {
+                    slice_size++;
+                }
+            }
+
+            if ( slice_size == 0ULL ) {
+                fprintf(stderr, "-S Error: slice number too big for this file.\n");
+                return 2;
+            }
         }
 
-        if ( slice_size == 0ULL ) {
-            fprintf(stderr, "-S Error: slice number too big for this file.\n");
+        // seek to from_byte position
+        if ( from_byte > 0ULL ) {
+            if ( from_byte > file_size ) {
+                fprintf(stderr, "Error: file '%s' smaller than `-f %ld`.\n", szFile, from_byte);
+                return 2;
+            }
+            if ( 0!= fseeko( hFile, from_byte - 1, SEEK_SET) ) {
+                fprintf(stderr, "Error: cannot seek file '%s' to position '%ld'.\n", szFile, from_byte);
+                return 2;
+            }
+            total_bytes_read = from_byte - 1;
+        }
+
+    }
+
+    if ( 0 == strlen(szFile) ) {
+        // adjust buffer_length with STDIN if from_byte
+        // before entering the processing loop
+        if ( from_byte > 0ULL ) {
+            buffer_length = BUFFER_LENGTH;
+            do {
+
+                if ( ( total_bytes_read + BUFFER_LENGTH ) >= from_byte ) {
+                    buffer_length = from_byte - total_bytes_read - 1;
+                }
+
+                bytes_read = fread(buffer, 1, buffer_length, hFile);
+                total_bytes_read += bytes_read;
+
+            } while ( total_bytes_read < from_byte &&
+                    buffer_length > 0 &&
+                    bytes_read > 0 );
+        }
+        // from_byte may has been too big for STDIN input
+        if ( from_byte > 0ULL &&
+             total_bytes_read < (from_byte - 1)
+        ) {
+            fprintf(stderr, "Error: data input smaller (%ld bytes) than -f %ld\n", total_size, from_byte);
             return 2;
         }
     }
 
     // process file
     // ( with slices if -[sS] was indicated )
-    total_bytes_read = 0;
     do {
 
         buffer_length = BUFFER_LENGTH;
@@ -299,6 +399,7 @@ int analyze_file(
         // actually count different bytes in file
         do {
 
+            // adjust buffer_length if slice_size
             if ( slice_size > 0ULL ) {
                 if ( total_size + BUFFER_LENGTH > slice_size ) {
                     buffer_length = slice_size - total_size;
@@ -306,8 +407,13 @@ int analyze_file(
             }
 
             bytes_read = fread(buffer, 1, buffer_length, hFile);
+
+            //
+            // count bytes !!!
+            //
             for (k = 0; k < bytes_read; ++k)
                 ++bytes[(unsigned char)buffer[k]];
+
             total_size += bytes_read;
 
         } while ( bytes_read == buffer_length &&
@@ -346,7 +452,9 @@ int analyze_file(
             szFile,
             total_size,
             total_bytes_read,
-            slice_size
+            slice_size,
+            from_byte,
+            to_byte
         );
 
         total_bytes_read += total_size;
@@ -403,6 +511,8 @@ int analyze_file(
             szFile,
             total_bytes_read,
             total_bytes_read,
+            0,
+            0,
             0
         );
     }
@@ -498,7 +608,9 @@ void print_circle_on_screen(
     char *szFile,
     long long total_size,
     long long total_bytes_read,
-    uint64_t slice_size
+    uint64_t slice_size,
+    uint64_t from_byte,
+    uint64_t to_byte
 ) {
 
     int i = 0;
@@ -585,11 +697,11 @@ void print_circle_on_screen(
         printf("file =\t%s", szFile);
     }
 
-    if ( slice_size > 0 ) {
-        printf( "\t, [%llu-%llu] bytes\n", total_bytes_read + 1, total_bytes_read + total_size );
-    } else {
-        printf( "\n" );
+    if ( slice_size > 0 ||
+         from_byte > 0 ) {
+        printf( "\t, [%llu-%llu] bytes", total_bytes_read + 1, total_bytes_read + total_size );
     }
+    printf("\n");
 
     if ( !restrict_statistics || number_of_byte_buckets == (MAX_VALUE+1) ) {
         printf("mean =\t%.3f\n", mean);
