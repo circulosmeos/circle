@@ -179,13 +179,12 @@ int main ( int argc, char *argv[] ) {
     if (optind == argc || argc == 1) {
         // file input is stdin
 
-        if ( slice_size > 0ULL ||
-             slice_number > 0ULL ) {
-            fprintf(stderr, "-[sS] Error: slices cannot be used with STDIN input.\n");
+        if ( slice_number > 0ULL ) {
+            fprintf(stderr, "-S Error: -S cannot be used with STDIN input.\n");
             return 2;
         }
 
-        analyze_file( "", 0ULL, 0ULL, false );
+        analyze_file( "", 0, slice_size, bShowGlobalFileStatistics );
     
     } else {
 
@@ -267,7 +266,7 @@ int analyze_file(
     // ( if -[sS] was indicated )
     if ( 0 != strlen(szFile) &&
         ( slice_number > 0ULL ||
-          slice_size > 0ULL ) 
+          slice_size > 0ULL )
     ) {
         struct stat st;
         stat(szFile, &st);
@@ -293,8 +292,9 @@ int analyze_file(
         total_size = 0;
 
         // fill counter matrix with zeros
-        for (i=0; i<(MAX_VALUE+1); ++i)
+        for (i=0; i<(MAX_VALUE+1); ++i) {
             bytes[i] = 0;
+        }
 
         // actually count different bytes in file
         do {
@@ -353,11 +353,15 @@ int analyze_file(
 
         if ( true == bShowGlobalFileStatistics ) {
             // increase global_bytes count with values just read
-            for (i=0; i<(MAX_VALUE+1); ++i)
+            for (i=0; i<(MAX_VALUE+1); ++i) {
                 global_bytes[i] += bytes[i];
+            }
         }
 
-    } while ( total_bytes_read < file_size );
+    } while ( ( 0 != strlen(szFile) )?
+                ( total_bytes_read < file_size ):   // :regular file
+                ( ! feof( hFile ) )                 // :STDIN
+            );
 
 
     // close file: it is not needed any more
@@ -373,7 +377,7 @@ int analyze_file(
             &sigma,
             &mean,
             &number_of_byte_buckets,
-            file_size
+            total_bytes_read
         );
     
         // fill circle's container matrix with zeros
@@ -397,8 +401,8 @@ int analyze_file(
             list_bytes,
             number_of_byte_buckets,
             szFile,
-            file_size,
-            file_size,
+            total_bytes_read,
+            total_bytes_read,
             0
         );
     }
@@ -576,14 +580,15 @@ void print_circle_on_screen(
 
     // print file name, so output from batch processes is useful:
     if (strlen(szFile)==0) {
-        printf("file =\tstdin\n");
+        printf("file =\tstdin");
     } else {
         printf("file =\t%s", szFile);
-        if ( slice_size > 0 ) {
-            printf( "\t, [%llu-%llu] bytes\n", total_bytes_read + 1, total_bytes_read + total_size );
-        } else {
-            printf( "\n" );
-        }
+    }
+
+    if ( slice_size > 0 ) {
+        printf( "\t, [%llu-%llu] bytes\n", total_bytes_read + 1, total_bytes_read + total_size );
+    } else {
+        printf( "\n" );
     }
 
     if ( !restrict_statistics || number_of_byte_buckets == (MAX_VALUE+1) ) {
