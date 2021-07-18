@@ -7,6 +7,7 @@
 // v2.3 by circulosmeos, 2016-07.
 // v2.4, v2.5 by circulosmeos, 2016-12.
 // v2.6 by circulosmeos, 2018-12.
+// v3.0 by circulosmeos, 2021-07.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -579,7 +580,7 @@ void print_circle_on_screen(
     } else {
         printf("file =\t%s", szFile);
         if ( slice_size > 0 ) {
-            printf( "\t[%llu-%llu] bytes\n", total_bytes_read + 1, total_bytes_read + total_size );
+            printf( "\t, [%llu-%llu] bytes\n", total_bytes_read + 1, total_bytes_read + total_size );
         } else {
             printf( "\n" );
         }
@@ -674,17 +675,21 @@ void print_help() {
 
     printf ("\n  %s \n", PACKAGE_STRING);
     printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n\n");
-    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-BblLZnruvh] [-z {0-255}] [<filename>] [<filename>] ...\n\n", 
+    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-BbglLZnruvh] [-[sS] #[kmgtpe]] [-z {0-255}] [<filename>] [<filename>] ...\n\n",
         PACKAGE_NAME);
-    printf ("\t-o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
+    printf (
+        "\t-o : show sigma as {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
         "\t-B : stop processing files on first error encountered\n"
         "\t-b : no color\n"
+        "\t-g : show summary values for file, when using `-[sS]`\n"
         "\t-l : list number of bytes counted, from 0 to 255\n"
         "\t-L : list number of bytes counted, excluding zero valued\n"
         "\t-Z : list number of bytes counted, but only zero valued\n"
-        "\t-n : numbers\n"
+        "\t-n : show sigma as numbers\n"
         "\t-r : restrict statistics to the byte buckets that appear \n\t     in the file, not to the 256 default value.\n"
-        "\t-u : uncoloured numbers (-b -n)\n"
+        "\t-s#: slice file in # byte-size slices. SI suffixes supported.\n"
+        "\t-S#: slice file in # slices. SI suffixes supported.\n"
+        "\t-u : show sigma as uncoloured numbers (equivalent to `-b -n`)\n"
         "\t-v : prints version\n"
         "\t-h : prints this help\n"
         "\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"

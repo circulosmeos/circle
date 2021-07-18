@@ -6,6 +6,7 @@
 // v2.1, v2.2 by circulosmeos, 2016-06.
 // v2.3 by circulosmeos, 2016-07.
 // v2.4 by circulosmeos, 2016-12.
+// v3.0 by circulosmeos, 2021-07.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -54,7 +55,7 @@
 #endif
 
 #define PACKAGE_NAME    "circle"
-#define PACKAGE_STRING  "circle v2.6 (goo.gl/TNh5dq)"
+#define PACKAGE_STRING  "circle v3.0 (goo.gl/TNh5dq)"
 
 #define BUFFER_LENGTH 4096
 
