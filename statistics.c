@@ -856,7 +856,7 @@ void print_help() {
         "  -v : prints version\n"
         "  -h : prints this help\n"
         "  -f#: ('from') analyze file from # byte on (1 implicit). SI suffixes supported.\n"
-        "  -s#: Slice file in # byte-size slices. SI suffixes supported.\n"
+        "  -s#: Slice file in slices of size # bytes. SI suffixes supported.\n"
         "  -S#: Slice file in # slices. SI suffixes supported.\n"
         "  -t#: ('to') analyze file until # byte. SI suffixes supported.\n"
         "  -T#: ('To') analyze this # bytes from `-f`. SI suffixes supported.\n"
