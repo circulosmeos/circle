@@ -334,7 +334,7 @@ int analyze_file(
             slice_size = (unsigned long long)((double)sliceable_size / (double)slice_number);
 
             if ( slice_size == 0ULL ) {
-                fprintf(stderr, "-S Error: slice number too big for this file.\n");
+                fprintf(stderr, "-S Error: slice number too big for file '%s'.\n", szFile);
                 return 2;
             }
 
