@@ -319,27 +319,26 @@ int analyze_file(
 
         // use file_size to calculate a valid slice_size
         // ( if -[sS] was indicated )
-        if ( slice_number > 0ULL ||
-             slice_size > 0ULL
-        ) {
+        if ( slice_number > 0ULL ) {
             // calculate slice_size to use always this value from now on
-            if ( slice_number > 0ULL ) {
-                unsigned long long sliceable_size = file_size - from_byte;
-                if ( to_byte > 0ULL ) {
-                    sliceable_size = to_byte - from_byte;
-                }
-                slice_size = (unsigned long long)((double)sliceable_size / (double)slice_number);
-                // adjust slice_size to produce the indicated number of slices (slice_number)
-                // at the cost of making the last slice slightly smaller:
-                while ( slice_size * slice_number <= sliceable_size ) {
-                    slice_size++;
-                }
+
+            unsigned long long sliceable_size = file_size - ( (from_byte > 1ULL)?(from_byte-1):0ULL );
+            if ( to_byte > 0ULL ) {
+                sliceable_size = to_byte - from_byte;
             }
+            slice_size = (unsigned long long)((double)sliceable_size / (double)slice_number);
 
             if ( slice_size == 0ULL ) {
                 fprintf(stderr, "-S Error: slice number too big for this file.\n");
                 return 2;
             }
+
+            // adjust slice_size to produce the indicated number of slices (slice_number)
+            // at the cost of making the last slice slightly smaller:
+            while ( slice_size * slice_number < sliceable_size ) {
+                slice_size++;
+            }
+
         }
 
         // seek to from_byte position
@@ -381,6 +380,13 @@ int analyze_file(
         ) {
             fprintf(stderr, "Error: data input smaller (%llu bytes) than -f %llu\n", total_size, from_byte);
             return 2;
+        }
+    }
+
+    if ( true == bShowGlobalFileStatistics ) {
+        // fill global counter matrix with zeros
+        for (i=0; i<(MAX_VALUE+1); ++i) {
+            global_bytes[i] = 0ULL;
         }
     }
 
@@ -487,6 +493,14 @@ int analyze_file(
     // close file: it is not needed any more
     fclose (hFile);
 
+    // adjust to_byte to last byte read,
+    // even though -[tT] is permitted to
+    // pass end of file when it is read (to
+    // allow processing fast growing files!)
+    if ( to_byte > total_bytes_read ) {
+        to_byte = total_bytes_read;
+    }
+
 
     if ( true == bShowGlobalFileStatistics ) {
         // print also global_bytes count summary:
@@ -497,7 +511,9 @@ int analyze_file(
             &sigma,
             &mean,
             &number_of_byte_buckets,
-            total_bytes_read
+            ( from_byte > 0ULL )?
+                ( total_bytes_read - from_byte + 1 ):
+                total_bytes_read
         );
     
         // fill circle's container matrix with zeros
@@ -521,11 +537,16 @@ int analyze_file(
             list_bytes,
             number_of_byte_buckets,
             szFile,
-            total_bytes_read,
-            total_bytes_read,
+            ( from_byte > 0ULL )?
+                ( total_bytes_read - from_byte + 1 ):
+                total_bytes_read,
+            ( from_byte > 0ULL )?
+                ( total_bytes_read - from_byte + 1 ):
+                total_bytes_read,
             0ULL,
             0ULL,
-            0ULL
+            from_byte,
+            to_byte
         );
     }
 
