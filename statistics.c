@@ -200,11 +200,15 @@ int main ( int argc, char *argv[] ) {
 
     if ( to_byte_increment > 0ULL ) {
         // calculate to_byte value and dismiss to_byte_increment
-        to_byte = from_byte + to_byte_increment;
+        to_byte = from_byte + to_byte_increment - 1;
+        if ( to_byte == 0ULL ) {
+            to_byte = 1ULL;
+        }
     }
 
     if ( ( from_byte > 0ULL && to_byte > 0ULL ) &&
-         to_byte <= from_byte
+         to_byte < from_byte
+         // ( '<' and not '<=' to allow -T1 or -t==-f to extract just one byte )
     ) {
         fprintf(stderr, "-[ftT] Error: -t value must be greater than -f value.\n");
         return 2;
