@@ -763,7 +763,7 @@ void print_circle_on_screen(
     }
 
     readable_size = total_size;
-    for (i=0; readable_size>1024.0; i++)
+    for (i=0; readable_size>=1024.0; i++)
         readable_size/=1024.0;
 
     printf("size =\t%.2f %s,  (%lld bytes)\n\n", readable_size, SIZE_UNITS[i], total_size);
