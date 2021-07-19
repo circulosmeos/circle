@@ -837,25 +837,31 @@ void print_circle_value(
 void print_help() {
 
     printf ("\n  %s \n", PACKAGE_STRING);
-    printf ("\n  Show statistics about bytes contained in a file,\n  as a circle graph of deviations from sigma.\n\n");
-    printf ("  Use:\n  $ %s [-o {0|1|2|3}] [-BbglLZnruvh] [-[sS] #[kmgtpe]] [-z {0-255}] [<filename>] [<filename>] ...\n\n",
+    printf ("\nShow statistics about bytes contained in a file,\n"
+              "as a circle graph of deviations from sigma.\n\n");
+    printf ("Use:\n  $ %s [-o {0|1|2|3}] [-BbglLZnruvh] [-[fsStT] #] [-z {0-255}] [<filename>] [<filename>] ...\n\n",
         PACKAGE_NAME);
     printf (
-        "\t-o : show sigma as {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
-        "\t-B : stop processing files on first error encountered\n"
-        "\t-b : no color\n"
-        "\t-g : show summary values for file, when using `-[sS]`\n"
-        "\t-l : list number of bytes counted, from 0 to 255\n"
-        "\t-L : list number of bytes counted, excluding zero valued\n"
-        "\t-Z : list number of bytes counted, but only zero valued\n"
-        "\t-n : show sigma as numbers\n"
-        "\t-r : restrict statistics to the byte buckets that appear \n\t     in the file, not to the 256 default value.\n"
-        "\t-s#: slice file in # byte-size slices. SI suffixes supported.\n"
-        "\t-S#: slice file in # slices. SI suffixes supported.\n"
-        "\t-u : show sigma as uncoloured numbers (equivalent to `-b -n`)\n"
-        "\t-v : prints version\n"
-        "\t-h : prints this help\n"
-        "\t-z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"
+        "  -o : show sigma as {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
+        "  -B : stop processing files on first error encountered\n"
+        "  -b : no color\n"
+        "  -g : show summary values for file, when using `-[sS]`\n"
+        "  -l : list number of bytes counted, from 0 to 255\n"
+        "  -L : list number of bytes counted, excluding zero valued\n"
+        "  -Z : list number of bytes counted, but only zero valued\n"
+        "  -n : show sigma as numbers\n"
+        "  -r : restrict statistics to the byte buckets that appear \n"
+        "       in the file, not to the 256 default value\n"
+        "  -u : show sigma as uncoloured numbers (equivalent to `-b -n`)\n"
+        "  -v : prints version\n"
+        "  -h : prints this help\n"
+        "  -f#: ('from') analyze file from # byte on (1 implicit). SI suffixes supported.\n"
+        "  -s#: Slice file in # byte-size slices. SI suffixes supported.\n"
+        "  -S#: Slice file in # slices. SI suffixes supported.\n"
+        "  -t#: ('to') analyze file until # byte. SI suffixes supported.\n"
+        "  -T#: ('To') analyze this # bytes from `-f`. SI suffixes supported.\n"
+        "  -z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"
+        "  Note about SI suffixes: kmgtpe (10^), KMGTPE (2^), and prefixes '0x' and '0'\n\n"
         );
 
 }
