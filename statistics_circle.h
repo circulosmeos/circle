@@ -116,6 +116,7 @@ void print_circle_on_screen(
     unsigned long long total_size,
     unsigned long long total_bytes_read,
     unsigned long long slice_size,
+    unsigned long long slice_actual_number,
     unsigned long long from_byte,
     unsigned long long to_byte
 );

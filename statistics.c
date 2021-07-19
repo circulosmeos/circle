@@ -267,6 +267,7 @@ int analyze_file(
     unsigned long long total_size = 0ULL;
     unsigned long long bytes[MAX_VALUE+1];
     unsigned long long global_bytes[MAX_VALUE+1];
+    unsigned long long slice_actual_number = 0ULL;
     int number_of_byte_buckets = 0;
 
     unsigned int buffer_length = BUFFER_LENGTH;
@@ -471,6 +472,7 @@ int analyze_file(
             total_size,
             total_bytes_read,
             slice_size,
+            ++slice_actual_number,
             from_byte,
             to_byte
         );
@@ -646,6 +648,7 @@ void print_circle_on_screen(
     unsigned long long total_size,
     unsigned long long total_bytes_read,
     unsigned long long slice_size,
+    unsigned long long slice_actual_number,
     unsigned long long from_byte,
     unsigned long long to_byte
 ) {
@@ -734,10 +737,15 @@ void print_circle_on_screen(
         printf("file =\t%s", szFile);
     }
 
-    if ( slice_size > 0 ||
-         from_byte > 0 ||
-         to_byte > 0 ) {
-        printf( "\t, [%llu-%llu] bytes", total_bytes_read + 1, total_bytes_read + total_size );
+    if ( slice_size > 0 ) {
+        printf( " , [%llu-%llu] bytes, (slice %llu)",
+            total_bytes_read + 1, total_bytes_read + total_size, slice_actual_number );
+    } else {
+        if ( from_byte > 0 ||
+            to_byte > 0 ) {
+                                             // always consider the first byte as '1', not '0'
+            printf( " , [%llu-%llu] bytes", ( (from_byte>0ULL)? from_byte: 1ULL ), to_byte );
+        }
     }
     printf("\n");
 
