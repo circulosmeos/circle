@@ -853,15 +853,15 @@ void print_help() {
         "  -r : restrict statistics to the byte buckets that appear \n"
         "       in the file, not to the 256 default value\n"
         "  -u : show sigma as uncoloured numbers (equivalent to `-b -n`)\n"
-        "  -v : prints version\n"
-        "  -h : prints this help\n"
+        "  -v : print version\n"
+        "  -h : print this help\n"
         "  -f#: ('from') analyze file from # byte on (1 implicit). SI suffixes supported.\n"
         "  -s#: Slice file in slices of size # bytes. SI suffixes supported.\n"
         "  -S#: Slice file in # slices. SI suffixes supported.\n"
         "  -t#: ('to') analyze file until # byte. SI suffixes supported.\n"
         "  -T#: ('To') analyze this # bytes from `-f`. SI suffixes supported.\n"
-        "  -z {0-255} : prints a 2nd circle centered on this byte (0==127 !)\n\n"
-        "  Note about SI suffixes: kmgtpe (10^), KMGTPE (2^), and prefixes '0x' and '0'\n\n"
+        "  -z {0-255} : print a 2nd circle centered on this byte (0==127 !)\n\n"
+        "  Note about SI suffixes: kmgtpe (10^), KMGTPE (2^), and prefixes '0x' and '0'.\n\n"
         );
 
 }
