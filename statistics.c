@@ -329,7 +329,7 @@ int analyze_file(
 
             unsigned long long sliceable_size = file_size - ( (from_byte > 1ULL)?(from_byte-1):0ULL );
             if ( to_byte > 0ULL ) {
-                sliceable_size = to_byte - from_byte;
+                sliceable_size = to_byte - from_byte + 1;
             }
             slice_size = (unsigned long long)((double)sliceable_size / (double)slice_number);
 
