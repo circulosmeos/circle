@@ -744,8 +744,8 @@ void print_circle_on_screen(
         if ( from_byte > 0 ||
             to_byte > 0 ) {
                                              // always consider the first byte as '1', not '0'
-            // (slice_actual_number used as `-g` indicator)
-            printf( " , [%llu-%llu] bytes", ( (from_byte>0ULL)? from_byte: 1ULL ), (0==slice_actual_number)?(to_byte):(total_bytes_read + total_size) );
+            // (0==slice_actual_number used as `-g` indicator)
+            printf( " , [%llu-%llu] bytes", ( (from_byte>0ULL)? from_byte: 1ULL ), (0==slice_actual_number)?( (0==to_byte)?(from_byte + total_bytes_read - 1):to_byte ):(total_bytes_read + total_size) );
         }
     }
     printf("\n");
