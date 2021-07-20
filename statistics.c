@@ -744,7 +744,7 @@ void print_circle_on_screen(
         if ( from_byte > 0 ||
             to_byte > 0 ) {
                                              // always consider the first byte as '1', not '0'
-            printf( " , [%llu-%llu] bytes", ( (from_byte>0ULL)? from_byte: 1ULL ), to_byte );
+            printf( " , [%llu-%llu] bytes", ( (from_byte>0ULL)? from_byte: 1ULL ), total_bytes_read + total_size );
         }
     }
     printf("\n");
