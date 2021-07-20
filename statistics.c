@@ -383,7 +383,7 @@ int analyze_file(
         if ( from_byte > 0ULL &&
              total_bytes_read < (from_byte - 1)
         ) {
-            fprintf(stderr, "Error: data input smaller (%llu bytes) than -f %llu\n", total_size, from_byte);
+            fprintf(stderr, "Error: data input smaller (%llu bytes) than -f %llu\n", (unsigned long long)total_bytes_read, from_byte);
             return 2;
         }
     }
