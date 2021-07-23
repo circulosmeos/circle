@@ -843,7 +843,7 @@ void print_help() {
     printf ("Use:\n  $ %s [-o {0|1|2|3}] [-BbglLZnruvh] [-[fsStT] #] [-z {0-255}] [<filename>] [<filename>] ...\n\n",
         PACKAGE_NAME);
     printf (
-        "  -o : show sigma as {0 | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
+        "  -o : show sigma as {0=default | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
         "  -B : stop processing files on first error encountered\n"
         "  -b : no color\n"
         "  -g : show summary values for file, when using `-[sS]`\n"
