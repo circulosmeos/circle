@@ -839,7 +839,8 @@ void print_help() {
 
     printf ("\n  %s \n", PACKAGE_STRING);
     printf ("\nShow statistics about bytes contained in a file,\n"
-              "as a circle graph of deviations from sigma.\n\n");
+              "as an ASCII circle graph of deviations from mean\n"
+              "in standard deviation (sigma) fraction increments.\n\n");
     printf ("Use:\n  $ %s [-o {0|1|2|3}] [-bBglLZnruvh] [-[fsStT] #] [-z {0-255}] [<filename>] [<filename>] ...\n\n",
         PACKAGE_NAME);
     printf (
