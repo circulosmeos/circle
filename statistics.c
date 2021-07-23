@@ -840,20 +840,20 @@ void print_help() {
     printf ("\n  %s \n", PACKAGE_STRING);
     printf ("\nShow statistics about bytes contained in a file,\n"
               "as a circle graph of deviations from sigma.\n\n");
-    printf ("Use:\n  $ %s [-o {0|1|2|3}] [-BbglLZnruvh] [-[fsStT] #] [-z {0-255}] [<filename>] [<filename>] ...\n\n",
+    printf ("Use:\n  $ %s [-o {0|1|2|3}] [-bBglLZnruvh] [-[fsStT] #] [-z {0-255}] [<filename>] [<filename>] ...\n\n",
         PACKAGE_NAME);
     printf (
         "  -o : show sigma as {0=default | 1=no color | 2=numbers | 3=uncoloured numbers}\n"
+        "  -b : no color (Black & white)\n"
         "  -B : stop processing files on first error encountered\n"
-        "  -b : no color\n"
         "  -g : show summary values for file, when using `-[sS]`\n"
         "  -l : list number of bytes counted, from 0 to 255\n"
         "  -L : list number of bytes counted, excluding zero valued\n"
         "  -Z : list number of bytes counted, but only zero valued\n"
-        "  -n : show sigma as numbers\n"
+        "  -n : show sigma as Numbers\n"
         "  -r : restrict statistics to the byte buckets that appear \n"
         "       in the file, not to the 256 default value\n"
-        "  -u : show sigma as uncoloured numbers (equivalent to `-b -n`)\n"
+        "  -u : show sigma as Uncoloured numbers (equivalent to `-b -n`)\n"
         "  -v : print version\n"
         "  -h : print this help\n"
         "  -f#: ('from') analyze file from # byte on (1 implicit). SI suffixes supported.\n"
