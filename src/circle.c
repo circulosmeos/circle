@@ -5,6 +5,7 @@
 // v1.2 by circulosmeos, 2016-01.
 // v2.1, v2.2 by circulosmeos, 2016-06.
 // v2.3 by circulosmeos, 2016-07.
+// v3.0 by circulosmeos, 2021-07.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -13,13 +14,15 @@
 
 #include "statistics_circle.h"
 
-
 const signed int CIRCLE_EMPTY_VALUE=255;
 
 const int MAX_X=35, MAX_Y=16;
 
 const int MAX_VALUE=255;
 
+// Stores in each byte bucket coordinates[MAX_VALUE + 1]
+// the integer coordinates that correspond to it in the
+// MAX_X * MAX_Y square containing the ASCII circle.
 void create_circle(double complex *coordinates)
 {
 

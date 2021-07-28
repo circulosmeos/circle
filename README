@@ -1,8 +1,8 @@
-bytes-circle v2.6
+bytes-circle v3.0
 
 bytes-circle is a program that shows statistics about bytes 
 contained in a file as an ASCII circle graph of deviations from 
-mean in sigma increments.
+mean in in standard deviation (sigma) fraction increments.
 
 The program can be useful for statistically analyze the content of
 files in a glimpse: text files are shown as a green centered crown,

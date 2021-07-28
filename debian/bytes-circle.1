@@ -4,18 +4,19 @@
 .\" First parameter, NAME, should be all caps
 .\" Second parameter, SECTION, should be 1-8, maybe w/ subsection
 .\" other parameters are allowed: see man(7), man(1)
-.TH BYTES-CIRCLE 1 "December 6, 2018"
+.TH BYTES-CIRCLE 1 "July 28, 2021" "3.0"
 .\" Please adjust this date whenever revising the manpage.
 .\"
 .SH NAME
 bytes-circle \- Show byte statistics as an ASCII circle graph
 .SH SYNOPSIS
 .B bytes-circle
-.RI [-o\ {0|1|2|3}]\ [-BblLZnruvh]\ [-z\ {0-255}] " files" ...
+.RI [-o\ {0|1|2|3}]\ [-bBglLZnruvh]\ [-[fsStT]\ #]\ [-z\ {0-255}]\  files ... 
 .br
 .SH DESCRIPTION
-\fBbytes-circle\fP is a program that shows statistics about bytes contained
-in a file as an ASCII circle graph of deviations from mean in sigma increments.
+\fBbytes-circle\fP is a program that shows statistics about bytes
+contained in a file, as an ASCII circle graph of deviations from mean
+in standard deviation (sigma) fraction increments.
 
 By default, byte 0 is at the center of the circle and next bytes until 256
 are situated counterclockwise around the center.
@@ -26,9 +27,9 @@ The ASCII art produced uses this char array to represent increment
 values of 1/4*sigma from the statistic's mean:
   \fB . , - ~ + * o O # @ \fP
 
-This ranges from zero (.) on the left, to 9/4*sigma (@) on the right.
+This ranges from zero (\fB.\fP) on the left, to 9/4*sigma (\fB@\fP) on the right.
 If value is zero or over the mean the char is printed green.
-If it is below the mean, it's printed red. A (blue) '=' char
+If it is below the mean, it's printed red. A (blue) '\fB=\fP' char
 represents a byte value that doesn't appear in the file.
 .SH OPTIONS
 .TP
@@ -36,14 +37,17 @@ represents a byte value that doesn't appear in the file.
 One or more files. If no file is indicated, standard input is used.
 .TP
 .BR \-o\ {0 | 1 | 2 | 3}
-1=no color | 2=numbers | 3=uncoloured numbers
-.TP
-.BR \-B
-Stop processing files on first error encountered.
+0=default | 1=no color | 2=numbers | 3=uncoloured numbers
 .TP
 .BR \-b
-No color. In this case, ASCII art is adjusted so the zero sigma
-is at the middle of the chars array (char '*'). Increments are 1/2*sigma.
+No color (Black & white). In this case, ASCII art is adjusted so the zero sigma
+is at the middle of the chars array (char '\fB*\fP'). Increments are 1/2*sigma.
+.TP
+.BR \-B
+('Break') stop processing files on first error encountered.
+.TP
+.BR \-g
+('Global') show summary values for file, when using `-[sS]`.
 .TP
 .BR \-l
 List number of bytes counted, from 0 to 255.
@@ -55,8 +59,8 @@ List number of bytes counted, excluding zero valued.
 List number of bytes counted, but only zero valued.
 .TP
 .BR \-n
-Use numbers. In this case, coloured numbers are used to represent
-values from 0 to 9/4*sigma.
+Use Numbers. In this case, coloured numbers are used to represent
+values from \fB0\fP to \fB9\fP/4*sigma.
 .TP
 .BR \-r
 Restrict statistics to the byte values that appear in the file, not to
@@ -64,9 +68,9 @@ the 256 default. This only makes a difference if there are byte values
 that do not appear in the file.
 .TP
 .BR \-u
-Use uncoloured numbers. In this case, numbers are used to represent
-positive deviations from 0 to 9/4*sigma, and letters are used to
-represent negative deviations from 'a' (-0) to 'i' (-9/4)*sigma.
+Use Uncoloured numbers (equivalent to `-b -n`). In this case, numbers
+are used to represent positive deviations from \fB0\fP to \fB9\fP/4*sigma, and letters
+are used to represent negative deviations from '\fBa\fP' (-0) to '\fBi\fP' (-9/4)*sigma.
 .TP
 .BR \-v
 Show program version and list chars used in coloured circle.
@@ -74,10 +78,27 @@ Show program version and list chars used in coloured circle.
 .BR \-h
 Show summary of options.
 .TP
+.BR \-f\ # 
+('From') analyze file from \fB#\fP byte on (1 implicit). SI suffixes supported.
+.TP
+.BR \-s\ # 
+Slice file in slices of size \fB#\fP bytes. SI suffixes supported.
+.TP
+.BR \-S\ # 
+Slice file in \fB#\fP slices. SI suffixes supported.
+.TP
+.BR \-t\ # 
+('To') analyze file until \fB#\fP byte. SI suffixes supported.
+.TP
+.BR \-T\ # 
+('To') analyze this \fB#\fP bytes from `-f`. SI suffixes supported.
+.TP
 .BR \-z\ {0-255}
 Show a second circle centered on indicated byte bucket. A zero value
 is equivalent to 127 for ease of use. This way a second view of the
 statistics is available for data disaggregation.
+.TP
+Note about \fBSI suffixes\fP: use one of \fBkmgtpe\fP (powers of 10), \fBKMGTPE\fP (powers of 2), and prefixes '\fB0x\fP' (hexadecimal number) and '\fB0\fP' (octal number).
 .SH AUTHOR
 This program was written by Roberto S. Galende <roberto.s.galende@gmail.com>
 and is copyrighted under the GPL, version 3 or later.

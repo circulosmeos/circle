@@ -6,6 +6,7 @@
 // v2.1, v2.2 by circulosmeos, 2016-06.
 // v2.3 by circulosmeos, 2016-07.
 // v2.4 by circulosmeos, 2016-12.
+// v3.0 by circulosmeos, 2021-07.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
@@ -39,6 +40,7 @@
 #include <stdlib.h>
 #include <unistd.h> // getopt()
 #include <ctype.h>  // isprint()
+#include <sys/stat.h> //stat()
 
 #ifndef __sun
 # include <getopt.h> // getopt() compatible with -std=c99
@@ -64,7 +66,7 @@
 #define KWHT  "\x1B[37m"
 #define RESET "\x1B[m"
 
-void create_circle(double complex *coordinates);
+void create_circle( double complex *coordinates );
 
 extern const signed int CIRCLE_EMPTY_VALUE;
 
@@ -72,10 +74,56 @@ extern const int MAX_X, MAX_Y;
 
 extern const int MAX_VALUE;
 
-void print_circle_value(signed int value);
+void print_circle_value( signed int value );
 
-int analyze_file(char *szFile);
+int analyze_file(
+    char *szFile,
+    unsigned long long slice_number,
+    unsigned long long slice_size,
+    bool bShowGlobalFileStatistics,
+    unsigned long long from_byte,
+    unsigned long long to_byte
+);
+
+void empty_circle(
+    signed int circle[MAX_X][MAX_Y],
+    signed int circle2[MAX_X][MAX_Y],
+    bool two_circles_flag
+);
+
+void calculate_sigma(
+    unsigned long long *bytes,
+    double *sigma_parameter,
+    double *mean_parameter,
+    int *number_of_byte_buckets_parameter,
+    unsigned long long total_size
+);
+
+void print_circle_on_screen(
+    unsigned long long *bytes,
+    double sigma,
+    double mean,
+    double complex *coordinates,
+    signed int circle[MAX_X][MAX_Y],
+    signed int circle2[MAX_X][MAX_Y],
+    bool two_circles_flag,
+    int two_circles_value,
+    bool restrict_statistics,
+    int list_bytes,
+    int number_of_byte_buckets,
+    char *szFile,
+    unsigned long long total_size,
+    unsigned long long total_bytes_read,
+    unsigned long long slice_size,
+    unsigned long long slice_actual_number,
+    unsigned long long from_byte,
+    unsigned long long to_byte
+);
+
+void print_circle_value( signed int value );
 
 void print_help();
+
+unsigned long long giveMeAnInteger( const char *original_input );
 
 #endif /* STATISTICS_CIRCLE_H_ */
