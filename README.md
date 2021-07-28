@@ -2,7 +2,11 @@
 
 **circle** reads all bytes in a file, and counts and arranges them from 0x00 to 0xff. Then it calculates the Standard deviation (sigma) of the data, and arranges the 256 resulting buckets in a circle, in such a way that the distance from the centre is proportional to the byte value (with 0x00 at the center, and ...0xf0-0xff bytes the farthest from it). The char that represents each byte is proportional to the deviation from the mean, in fractions of the standard deviation.   
 
-From v2.6, the list of different bytes counted can be printed using options `-l`, `-L`, `-Z`. Values over the mean will be printed green, and below it, they will be red.
+The list of different bytes counted can be printed using options `-l`, `-L`, `-Z`. Values over the mean will be printed green, and below it, they will be red.
+
+Also the file can be sliced in slices of size # with `-s #`, or sliced in # slices with `-S #`.
+
+Initial and end absolute bytes in the file can be indicated with `-f #` (from) and `-t #` (to) respectively. `-T #` (instead of `-t`) can be used to indicate the chunk size to analyze after `-f #` byte.
    
 Installation
 ============
@@ -17,9 +21,9 @@ There is a PPA repository available for Ubuntu (contains versions from *precise*
     $ sudo apt-get update
     $ sudo apt-get install bytes-circle
 
-There're [executable files for various OS available here](https://drive.google.com/folderview?id=0B1L_hFrWJfRhODE3RE5fNGNaWWM), including versions for Windows, HP-UX and Solaris.
-
 If using [R](https://cran.r-project.org/), there's a port here: [https://github.com/circulosmeos/bytescircle](https://github.com/circulosmeos/bytescircle).
+
+There're [executable files for various OS available here](https://drive.google.com/folderview?id=0B1L_hFrWJfRhODE3RE5fNGNaWWM), including versions for Windows, HP-UX and Solaris.
 
 Compilation
 ===========
@@ -49,31 +53,43 @@ A random file looks like:
    
 ![](https://circulosmeos.files.wordpress.com/2015/10/circle-urandom.png)
     
-Options for non-colored consoles (in this case chars represent increments of 0.5 sigma and zero is char '*') and for using numbers instead of ASCII art are also available:   
+Options for non-colored consoles (in this case chars represent increments of 0.5 sigma and zero is char '*') and for using numbers instead of ASCII art are also available: `-[bnu]` or `-o {0|1|2|3}`.
+
+Usage
+=====
    
     $ bytes-circle -h   
    
-      circle v2.6 (goo.gl/TNh5dq)
+      circle v3.0 (goo.gl/TNh5dq)
 
-      Show statistics about bytes contained in a file,
-      as a circle graph of deviations from sigma.
+    Show statistics about bytes contained in a file,
+    as an ASCII circle graph of deviations from mean
+    in standard deviation (sigma) fraction increments.
 
-      Use:
-      $ circle [-o {0|1|2|3}] [-BblLZnruvh] [-z {0-255}] [<filename>] [<filename>] ...
+    Use:
+      $ circle [-o {0|1|2|3}] [-bBglLZnruvh] [-[fsStT] #] [-z {0-255}] [<filename>] [<filename>] ...
 
-            -o {0 | 1=no color | 2=numbers | 3=uncoloured numbers}
-            -B : stop processing files on first error encountered
-            -b : no color
-            -l : list number of bytes counted, from 0 to 255
-            -L : list number of bytes counted, excluding zero valued
-            -Z : list number of bytes counted, but only zero valued
-            -n : numbers
-            -r : restrict statistics to the byte buckets that appear
-                 in the file, not to the 256 default value.
-            -u : uncoloured numbers (-b -n)
-            -v : prints version
-            -h : prints this help
-            -z {0-255} : prints a 2nd circle centered on this byte (0==127 !)
+      -o : show sigma as {0=default | 1=no color | 2=numbers | 3=uncoloured numbers}
+      -b : no color (Black & white)
+      -B : ('Break') stop processing files on first error encountered
+      -g : ('Global') show summary values for file, when using `-[sS]`
+      -l : list number of bytes counted, from 0 to 255
+      -L : list number of bytes counted, excluding zero valued
+      -Z : list number of bytes counted, but only zero valued
+      -n : show sigma as Numbers
+      -r : restrict statistics to the byte buckets that appear
+           in the file, not to the 256 default value
+      -u : show sigma as Uncoloured numbers (equivalent to `-b -n`)
+      -v : print version
+      -h : print this help
+      -f#: ('From') analyze file from # byte on (1 implicit). SI suffixes supported.
+      -s#: Slice file in slices of size # bytes. SI suffixes supported.
+      -S#: Slice file in # slices. SI suffixes supported.
+      -t#: ('To') analyze file until # byte. SI suffixes supported.
+      -T#: ('To') analyze this # bytes from `-f`. SI suffixes supported.
+      -z {0-255} : print a 2nd circle centered on this byte (0==127 !)
+
+      Note about SI suffixes: kmgtpe (10^), KMGTPE (2^), and prefixes '0x' and '0'.
 
 License
 =======
