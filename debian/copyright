@@ -1,5 +1,6 @@
 Format: https://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
 Upstream-Name: bytes-circle
+Upstream-Contact: Roberto S. Galende <roberto.s.galende@gmail.com>
 Source: https://github.com/circulosmeos/circle.git
 
 Files: *
