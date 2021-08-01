@@ -42,7 +42,7 @@ int main ( int argc, char *argv[] ) {
     bool bShowGlobalFileStatistics=false;
     unsigned long long slice_size = 0ULL;
     unsigned long long slice_number = 0ULL;
-    unsigned long long from_byte = 0ULL;
+    unsigned long long from_byte = 1ULL;
     unsigned long long to_byte = 0ULL;
     unsigned long long to_byte_increment = 0ULL;
 
@@ -351,12 +351,13 @@ int analyze_file(
 
         }
 
+        if ( from_byte > file_size ) {
+            fprintf(stderr, "Error: file '%s' smaller than `-f %llu`.\n", szFile, from_byte);
+            return 2;
+        }
+
         // seek to from_byte position
-        if ( from_byte > 0ULL ) {
-            if ( from_byte > file_size ) {
-                fprintf(stderr, "Error: file '%s' smaller than `-f %llu`.\n", szFile, from_byte);
-                return 2;
-            }
+        if ( from_byte > 1ULL ) {
             if ( 0 != fseeko( hFile, from_byte - 1, SEEK_SET) ) {
                 fprintf(stderr, "Error: cannot seek file '%s' to position '%llu'.\n", szFile, from_byte);
                 return 2;
@@ -369,7 +370,7 @@ int analyze_file(
     if ( 0 == strlen(szFile) ) {
         // adjust buffer_length with STDIN if from_byte
         // before entering the processing loop
-        if ( from_byte > 0ULL ) {
+        if ( from_byte > 1ULL ) {
             buffer_length = BUFFER_LENGTH;
             do {
 
@@ -385,8 +386,8 @@ int analyze_file(
                     bytes_read > 0 );
         }
         // from_byte may has been too big for STDIN input
-        if ( from_byte > 0ULL &&
-             total_bytes_read < (from_byte - 1)
+        if ( from_byte > 1ULL &&
+             total_bytes_read < from_byte
         ) {
             fprintf(stderr, "Error: data input smaller (%llu bytes) than -f %llu\n", (unsigned long long)total_bytes_read, from_byte);
             return 2;
@@ -522,9 +523,7 @@ int analyze_file(
             &sigma,
             &mean,
             &number_of_byte_buckets,
-            ( from_byte > 0ULL )?
-                ( total_bytes_read - from_byte + 1 ):
-                total_bytes_read
+            total_bytes_read - from_byte + 1
         );
     
         // fill circle's container matrix with zeros
@@ -548,12 +547,8 @@ int analyze_file(
             list_bytes,
             number_of_byte_buckets,
             szFile,
-            ( from_byte > 0ULL )?
-                ( total_bytes_read - from_byte + 1 ):
-                total_bytes_read,
-            ( from_byte > 0ULL )?
-                ( total_bytes_read - from_byte + 1 ):
-                total_bytes_read,
+            total_bytes_read - from_byte + 1,
+            total_bytes_read - from_byte + 1,
             0ULL,
             0ULL,
             from_byte,
@@ -742,15 +737,19 @@ void print_circle_on_screen(
         printf("file =\t%s", szFile);
     }
 
-    if ( slice_size > 0 ) {
+    if ( slice_size > 0ULL ) {
         printf( " , [%llu-%llu] bytes, (slice %llu)",
             total_bytes_read + 1, total_bytes_read + total_size, slice_actual_number );
     } else {
-        if ( from_byte > 0 ||
-            to_byte > 0 ) {
-                                             // always consider the first byte as '1', not '0'
-            // (0==slice_actual_number used as `-g` indicator)
-            printf( " , [%llu-%llu] bytes", ( (from_byte>0ULL)? from_byte: 1ULL ), (0==slice_actual_number)?( (0==to_byte)?(from_byte + total_bytes_read - 1):to_byte ):(total_bytes_read + total_size) );
+        if ( from_byte > 1ULL ||
+            to_byte > 0ULL ) {
+            // first byte is 1, not 0
+            printf( " , [%llu-%llu] bytes",
+                from_byte,
+                (0ULL==slice_actual_number)? // 0ULL==slice_actual_number used as `-g` indicator
+                    ( (0ULL==to_byte)?(from_byte + total_bytes_read - 1):to_byte ):
+                    (total_bytes_read + total_size)
+            );
         }
     }
     printf("\n");
