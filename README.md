@@ -60,7 +60,7 @@ Usage
    
     $ bytes-circle -h   
    
-      circle v3.0 (goo.gl/TNh5dq)
+      circle v3.1 (goo.gl/TNh5dq)
 
     Show statistics about bytes contained in a file,
     as an ASCII circle graph of deviations from mean

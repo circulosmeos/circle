@@ -7,7 +7,7 @@
 // v2.3 by circulosmeos, 2016-07.
 // v2.4, v2.5 by circulosmeos, 2016-12.
 // v2.6 by circulosmeos, 2018-12.
-// v3.0 by circulosmeos, 2021-07.
+// v3.0, v3.1 by circulosmeos, 2021-07, 2021-08.
 // wp.me/p2FmmK-96
 // goo.gl/TNh5dq
 //
